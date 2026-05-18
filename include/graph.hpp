@@ -1,5 +1,7 @@
 #pragma once
 #include "map"
+#include "fstream"
+#include "iostream"
 #include "node.hpp"
 
 using namespace std;
@@ -7,6 +9,7 @@ using namespace std;
 class graph {
     private:
         map<int,node> nodes;
+        int next_id = 0;
 
     public:
         graph();
@@ -18,4 +21,7 @@ class graph {
         void add_edge(int u,int v);
         void add_edge(node& u,node& v);
         bool is_well_formed() const;
+        friend ostream& operator<<(ostream& os, const graph& G);
+        int size() const;
+        int save(string filename) const;
 };

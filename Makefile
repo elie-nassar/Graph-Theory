@@ -1,15 +1,21 @@
 CXX = g++
-CXXFLAGS = -std=c++20 -Wall -O2
+CXXFLAGS = -std=c++20 -Wall -O2 -I include/
 
-.PHONY: all
-all: main
+SRC = $(wildcard src/*.cpp)
+OBJ = $(SRC:src/%.cpp=build/%.o)
+BIN = bin/main
 
-.PHONY: clean
-clean:
-	rm main *.o
+.PHONY: all clean
 
-main: main.o graph.o node.o
+all: $(BIN)
+
+$(BIN): $(OBJ)
+	@mkdir -p bin
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-%.o: %.cpp
+build/%.o: src/%.cpp
+	@mkdir -p build
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+clean:
+	rm -rf build/ bin/

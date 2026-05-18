@@ -12,10 +12,8 @@ const node& graph::get_node_by_id(int id) const{
 }
 
 int graph::add_node() {
-    int id=0;
-    while(nodes.contains(id)) id++;
-    nodes[id] = node(id);
-    return id;
+    nodes[next_id] = node(next_id);
+    return next_id++;
 }
 
 void graph::add_edge(int u, int v) {
@@ -34,10 +32,37 @@ bool graph::is_well_formed() const{
         if(n1.get_id() != id1) return false;
         for(int id2 : n1.get_neighbor_ids()) {
             if(!nodes.contains(id2)) return false;
-            auto it_node2 = nodes.find(id2);
-            const node& n2 = it_node2->second;
+            node n2 = nodes.at(id2);
             if(!n2.get_neighbor_ids().contains(id1)) return false;
         }
     }
     return true;
+}
+
+ostream& operator<<(ostream& os, const graph& G) {
+    os << "graph {" << endl;
+    for (const auto& it : G.get_nodes()) {
+        int id = it.first;
+        const node& n = it.second;
+        os << "  " << id << endl;
+        for (int neighbor_id : n.get_neighbor_ids())
+            if(neighbor_id>id) os << "  " << id << "--" << neighbor_id << endl;
+    }
+    os << "}";
+    return os;
+}
+
+int graph::size() const{
+    return next_id;
+}
+
+int graph::save(string filename) const {
+    string dot_file = "./bin/"+filename + ".dot";
+    string png_file = "./bin/"+filename + ".png";
+
+    ofstream f(dot_file);
+    f << *this;
+    f.close();
+
+    return system(("dot -Tpng " + dot_file + " -o " + png_file).c_str());
 }
