@@ -64,5 +64,5 @@ int graph::save(string filename) const {
     f << *this;
     f.close();
 
-    return system(("dot -Tpng " + dot_file + " -o " + png_file).c_str());
+    return system(("circo -Tpng " + dot_file + " -o " + png_file).c_str());
 }

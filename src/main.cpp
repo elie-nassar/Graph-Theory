@@ -9,13 +9,10 @@ int main() {
     G.add_node();
     G.add_node();
     G.add_node();
-    G.add_node();
-    G.add_node();
 
-    G.add_edge(0,1);
-    G.add_edge(1,2);
-    G.add_edge(2,3);
-    G.add_edge(3,0);
+    for(int i=0;i<5;i++)
+        for(int j=i+1;j<5;j++) 
+            G.add_edge(i,j);
 
 
     cout << G.is_well_formed() << endl;
