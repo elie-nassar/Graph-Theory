@@ -14,10 +14,12 @@ int main() {
         for(int j=i+1;j<5;j++) 
             G.add_edge(i,j);
 
+    vector<int> coloring = graph_coloring_backtracking(G,5);
+    for(int i=0;i<coloring.size();i++) {
+        cout << i << " : " << coloring[i] << endl;
+    }
 
-    cout << G.is_well_formed() << endl;
+    G.save("img",coloring);
 
-    cout << G << endl;
-    G.save("img");
     return 0;
 }

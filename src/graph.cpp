@@ -39,16 +39,29 @@ bool graph::is_well_formed() const{
     return true;
 }
 
-ostream& operator<<(ostream& os, const graph& G) {
-    os << "graph {" << endl;
-    for (const auto& it : G.get_nodes()) {
+string graph::to_dot() const {
+    return to_dot({});
+}
+
+string graph::to_dot(const vector<int>& c) const {
+    string s = "graph {\n";
+    for (const auto& it : nodes) {
         int id = it.first;
         const node& n = it.second;
-        os << "  " << id << endl;
+        if(!c.empty())
+            s += "  " + to_string(id) + " [fillcolor=\"/paired12/" + to_string(c[id]) + "\" style=filled]\n";
+        else
+            s += "  " + to_string(id) + "\n";
         for (int neighbor_id : n.get_neighbor_ids())
-            if(neighbor_id>id) os << "  " << id << "--" << neighbor_id << endl;
+            if(neighbor_id > id)
+                s += "  " + to_string(id) + "--" + to_string(neighbor_id) + "\n";
     }
-    os << "}";
+    s += "}";
+    return s;
+}
+
+ostream& operator<<(ostream& os, const graph& G) {
+    os << G.to_dot();
     return os;
 }
 
@@ -57,11 +70,15 @@ int graph::size() const{
 }
 
 int graph::save(string filename) const {
+    return save(filename,{});
+}
+
+int graph::save(string filename,const vector<int>& c) const {
     string dot_file = "./bin/"+filename + ".dot";
     string png_file = "./bin/"+filename + ".png";
 
     ofstream f(dot_file);
-    f << *this;
+    f << this->to_dot(c);
     f.close();
 
     return system(("circo -Tpng " + dot_file + " -o " + png_file).c_str());

@@ -1,10 +1,10 @@
 #pragma once
 #include "map"
+#include "vector"
 #include "fstream"
 #include "iostream"
 #include "node.hpp"
 
-using namespace std;
 
 class graph {
     private:
@@ -21,7 +21,10 @@ class graph {
         void add_edge(int u,int v);
         void add_edge(node& u,node& v);
         bool is_well_formed() const;
-        friend ostream& operator<<(ostream& os, const graph& G);
         int size() const;
         int save(string filename) const;
+        int save(string filename,const vector<int>& c) const;
+        string to_dot() const;
+        string to_dot(const vector<int>& c) const;
+        friend ostream& operator<<(ostream& os, const graph& G);
 };
