@@ -21,9 +21,10 @@ bool sat::evaluate(const unordered_map<int,bool>& assignment) const {
 
 unordered_map<int,bool> sat::solve() {
     vector<int> vec_variables(variables.begin(), variables.end());
+    unordered_map<int,bool> assignment;
+    assignment.reserve(variables.size());
 
     for (int mask=0;mask<(1 << variables.size());mask++) {
-        unordered_map<int,bool> assignment;
         for(int i=0;i<(int)variables.size();i++) assignment[vec_variables[i]] = (mask >> i) & 1;
         if(evaluate(assignment)) return assignment;
     }
