@@ -1,50 +1,46 @@
 #include "sat.hpp"
 
-sat::sat(const set<set<literal>> &formula, int variable_count) : formula(formula), variable_count(variable_count) {}
-sat::sat(const set<set<literal>> &formula) : formula(formula) {
-    map<int,bool> ids;
-    variable_count = 0;
-    for(const set<literal> &disjonction:formula) {
-        for(const literal &x : disjonction) {
-            if(!ids[x.get_id()]) {
-                ids[x.get_id()]=true;
-                variable_count++;
-            }
+sat::sat(const vector<clause> &clauses) : clauses(clauses) {
+    for(const clause& c:clauses) {
+        for(const literal& l:c) {
+            if(l<0) variables.insert(-l);
+            else variables.insert(l);
         }
     }
 }
 
-int sat::get_variable_count() const {return variable_count;}
-
-map<int, bool> sat::solve() {
-
+bool sat::evaluate(const unordered_map<int,bool>& assignment) const {
+    for(const clause& c:clauses) {
+        bool clause_sat = false;
+        for(const literal& l:c)
+            if((l>0 and assignment.at(l)) or (l<0 and !assignment.at(-l))) clause_sat=true;
+        if(!clause_sat) return false;
+    }
+    return true;
 }
 
-map<int,bool> sat::solve(map<int,bool> &m) {
-    if(m.size()==formula.size()) return m;
+unordered_map<int,bool> sat::solve() {
+    vector<int> vec_variables(variables.begin(), variables.end());
 
+    for (int mask=0;mask<(1 << variables.size());mask++) {
+        unordered_map<int,bool> assignment;
+        for(int i=0;i<(int)variables.size();i++) assignment[vec_variables[i]] = (mask >> i) & 1;
+        if(evaluate(assignment)) return assignment;
+    }
+    return {};
 }
 
-ostream &operator<<(ostream &os, const sat &SAT) {
-    int dis_count = 0;
-    int lit_count = 0;
-    for (const set<literal> &disjonction : SAT.formula)
-    {
+ostream& operator<<(ostream& os, const sat& SAT) {
+    for(int i=0;i<(int)SAT.clauses.size();i++) {
+        clause c = SAT.clauses[i];
         os << "(";
-        lit_count = 0;
-        for (const literal &x : disjonction)
-        {
-            if (x.is_neg())
-                os << "-";
-            os << "x_" << x.get_id();
-            if (lit_count < disjonction.size() - 1)
-                os << " or ";
-            lit_count++;
+        for(int j=0;j<(int)c.size();j++) {
+            if(c[j]<0) os << "-";
+            os << "x" << abs(c[j]);
+            if(j<(int)c.size()-1) os << " or ";
         }
         os << ")";
-        if (dis_count < SAT.formula.size() - 1)
-            os << " and ";
-        dis_count++;
+        if(i<(int)SAT.clauses.size()-1) os << " and ";
     }
     return os;
 }

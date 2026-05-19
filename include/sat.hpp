@@ -1,22 +1,23 @@
 #pragma once
-#include "literal.hpp"
-#include <set>
-#include <map>
+#include <vector>
 #include <iostream>
+#include <unordered_map>
+#include <unordered_set>
 
 using namespace std;
 
+using literal = int;
+using clause = vector<literal>;
+
 class sat {
     private:
-        set<set<literal>> formula;
-        int variable_count;
+        vector<clause> clauses;
+        unordered_set<int> variables;
 
     public:
-        sat(const set<set<literal>> &formula);
-        sat(const set<set<literal>> &formula, int variable_count);
+        sat(const vector<clause> &clauses);
+        bool evaluate(const unordered_map<int,bool>& assignment) const;
+        unordered_map<int,bool> solve();
 
-        int get_variable_count() const;
-        map<int,bool> solve();
-        map<int,bool> solve(map<int,bool> &m);
-        friend ostream &operator<<(ostream &os, const sat& SAT);
+        friend ostream& operator<<(ostream& os, const sat& SAT);
 };
