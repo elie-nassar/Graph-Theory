@@ -1,8 +1,8 @@
 #pragma once
-#include "map"
-#include "vector"
-#include "fstream"
-#include "iostream"
+#include <map>
+#include <vector>
+#include <fstream>
+#include <iostream>
 #include "node.hpp"
 
 
@@ -13,7 +13,6 @@ class graph {
 
     public:
         graph();
-        graph(map<int,node> nodes);
         
         const map<int,node>& get_nodes() const;
         const node& get_node_by_id(int id) const;
@@ -27,4 +26,5 @@ class graph {
         string to_dot() const;
         string to_dot(const vector<int>& c) const;
         friend ostream& operator<<(ostream& os, const graph& G);
+        static graph random(int nodes, int edges);
 };

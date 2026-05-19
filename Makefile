@@ -5,8 +5,6 @@ SRC = $(wildcard src/*.cpp)
 OBJ = $(SRC:src/%.cpp=build/%.o)
 BIN = bin/main
 
-.PHONY: all clean
-
 all: $(BIN)
 
 $(BIN): $(OBJ)

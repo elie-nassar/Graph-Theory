@@ -1,25 +1,18 @@
 #include "graph.hpp"
-#include "algorithms.hpp"
+#include "graph_coloring.hpp"
 
 int main() {
+    srand(time(0));
 
-    graph G = graph();
-    G.add_node();
-    G.add_node();
-    G.add_node();
-    G.add_node();
-    G.add_node();
+    graph G = graph::random(5,5);;
 
-    for(int i=0;i<5;i++)
-        for(int j=i+1;j<5;j++) 
-            G.add_edge(i,j);
+    G.save("img");
 
-    vector<int> coloring = graph_coloring_backtracking(G,5);
-    for(int i=0;i<coloring.size();i++) {
-        cout << i << " : " << coloring[i] << endl;
-    }
-
-    G.save("img",coloring);
+    vector<int> coloring = graph_coloring_backtracking(G,3);
+    if(!coloring.empty()) {
+        cout << "Coloration possible : bin/coloring.png" << endl;
+        G.save("coloring",coloring);
+    }else cout << "Coloration impossible" << endl;
 
     return 0;
 }

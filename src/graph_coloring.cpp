@@ -1,4 +1,4 @@
-#include "algorithms.hpp"
+#include "graph_coloring.hpp"
 
 int choose_next_node(const graph& G, int k, vector<int>& c) {
     for(int i=0;i<G.size();i++)
