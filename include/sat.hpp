@@ -12,12 +12,13 @@ using clause = vector<literal>;
 class sat {
     private:
         vector<clause> clauses;
-        unordered_set<int> variables;
+        vector<int> variables;
 
     public:
         sat(const vector<clause> &clauses);
+
         bool evaluate(const unordered_map<int,bool>& assignment) const;
-        unordered_map<int,bool> solve();
+        unordered_map<int,bool> solve_naive();
 
         friend ostream& operator<<(ostream& os, const sat& SAT);
 };
