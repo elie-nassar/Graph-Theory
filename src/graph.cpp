@@ -25,9 +25,7 @@ void graph::add_edge(node &u, node &v) {
 }
 
 bool graph::is_well_formed() const {
-    for (const auto &it1 : nodes) {
-        int id1 = it1.first;
-        node n1 = it1.second;
+    for (const auto &[id1,n1] : nodes) {
         if (n1.get_id() != id1) return false;
 
         for (int id2 : n1.get_neighbor_ids()) {
@@ -44,13 +42,11 @@ string graph::to_dot() const {
     return to_dot({});
 }
 
-string graph::to_dot(const vector<int> &c) const{
+string graph::to_dot(const unordered_map<int,int> &coloring) const{
     string s = "graph {\n";
-    for (const auto &it : nodes) {
-        int id = it.first;
-        node n = it.second;
-        if (!c.empty()) {
-            s += "  " + to_string(id) + " [fillcolor=\"/rdbu11/"+to_string(c[id]) + "\" style=filled]\n";
+    for (const auto& [id,n] : nodes) {
+        if (!coloring.empty()) {
+            s += "  " + to_string(id) + " [fillcolor=\"/rdbu11/"+to_string(coloring.at(id)) + "\" style=filled]\n";
         }
         else s += "  " + to_string(id) + "\n";
         for (int neighbor_id : n.get_neighbor_ids())
@@ -74,12 +70,12 @@ int graph::save(string filename) const {
     return save(filename, {});
 }
 
-int graph::save(string filename, const vector<int> &c) const {
+int graph::save(string filename, const unordered_map<int,int> &coloring) const {
     string dot_file = "./bin/" + filename + ".dot";
     string png_file = "./bin/" + filename + ".png";
 
     ofstream f(dot_file);
-    f << this->to_dot(c);
+    f << this->to_dot(coloring);
     f.close();
 
     return system(("circo -Tpng " + dot_file + " -o " + png_file).c_str());

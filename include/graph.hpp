@@ -22,9 +22,9 @@ class graph {
         bool is_well_formed() const;
         int size() const;
         int save(string filename) const;
-        int save(string filename,const vector<int>& c) const;
+        int save(string filename,const unordered_map<int,int>& coloring) const;
         string to_dot() const;
-        string to_dot(const vector<int>& c) const;
+        string to_dot(const unordered_map<int,int>& coloring) const;
         friend ostream& operator<<(ostream& os, const graph& G);
         static graph random(int nodes, int edges);
 };

@@ -3,7 +3,7 @@
 
 int choose_next_node(const graph& G, int k,const unordered_map<int,int>& coloring) {
     for(const auto& [id,n]:G.get_nodes())
-        if(!coloring.contains(id)) return id;
+        if(!coloring.contains(id) or coloring.at(id)==0) return id;
     return -1;
 }
 
@@ -27,6 +27,7 @@ unordered_set<int> get_available_colors(const graph& G, int node_id, int k, cons
 bool verify_coloring(const graph& G,int k, const unordered_map<int,int>& coloring) {
     if(coloring.empty()) return true;
     unordered_set<int> colors;
+    colors.reserve(k);
     for(const auto& [id,n]:G.get_nodes()) {
         int color = coloring.at(id);
         colors.insert(color);
@@ -38,6 +39,7 @@ bool verify_coloring(const graph& G,int k, const unordered_map<int,int>& colorin
 
 unordered_map<int,int> coloring_backtracking(const graph& G, int k) {
     unordered_map<int,int> coloring;
+    coloring.reserve(G.size());
     return coloring_backtracking(G,k,coloring);
 }
 
@@ -71,7 +73,7 @@ unordered_map<int,int> coloring_sat(const graph& G,int k) {
     }
 
     sat SAT(clauses);
-    auto assignment = SAT.solve_naive();
+    auto assignment = SAT.solve_dpll();
     if(assignment.empty()) return {};
 
     unordered_map<int,int> coloring;

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <unordered_set>
+#include <set>
 
 using namespace std;
 
@@ -11,14 +12,19 @@ using clause = vector<literal>;
 
 class sat {
     private:
-        vector<clause> clauses;
+        vector<clause> formula;
         vector<int> variables;
 
     public:
-        sat(const vector<clause> &clauses);
+        sat(const vector<clause> &formula);
+        sat(const vector<clause> &formula,const vector<int>& variables);
 
         bool evaluate(const unordered_map<int,bool>& assignment) const;
-        unordered_map<int,bool> solve_naive();
+        void simplify(int variable, bool variable_assignment);
+
+        unordered_map<int,bool> solve_exhaustive();
+        unordered_map<int,bool> solve_dpll();
+        unordered_map<int,bool> solve_dpll(unordered_map<int,bool>& assignment);
 
         friend ostream& operator<<(ostream& os, const sat& SAT);
 };
