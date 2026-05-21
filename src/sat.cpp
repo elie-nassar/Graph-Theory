@@ -54,10 +54,16 @@ unordered_map<int,bool> sat::solve_exhaustive() {
     return {};
 }
 
-literal search_unary_clause(const vector<clause>& formula) {
+literal search_next_literal(const vector<clause>& formula) {
+    unordered_map<int,int> pol;
     for(const clause& c:formula) {
         if(c.size()==1) return c[0];
+        for(const literal& l:c) {
+            if(!pol.contains(l)) pol[abs(l)] = l;
+            else if((pol[abs(l)]<0 and l>0) or (pol[abs(l)]>0 and l<0)) pol[abs(l)] = 0;
+        }
     }
+    for(const auto& [id,l]:pol) if(l!=0) return l;
     return 0;
 }
 
@@ -93,14 +99,18 @@ unordered_map<int,bool> sat::solve_dpll(unordered_map<int,bool>& assignment) {
     if(formula.empty()) return assignment;
     for(const clause& c:formula) if(c.size()==0) return {};
 
-    literal l = search_unary_clause(formula);
+    literal l = search_next_literal(formula);
     vector<clause> old_formula = formula;
     if(l!=0) {
         assignment[abs(l)] = (l>0 ? true : false);
         simplify(abs(l),assignment[abs(l)]);
-        unordered_map<int,bool> new_assignment = solve_dpll(assignment);
-        formula = old_formula;
-        return new_assignment;
+        if(solve_dpll(assignment).empty()) {
+            formula = old_formula;
+            return {};
+        }else {
+            formula=old_formula;
+            return assignment;
+        }
     }
     int variable = abs(formula[0][0]);
     assignment[variable]=true;
@@ -112,7 +122,11 @@ unordered_map<int,bool> sat::solve_dpll(unordered_map<int,bool>& assignment) {
     formula = old_formula;
     assignment[variable]=false;
     simplify(variable,assignment[variable]);
-    unordered_map<int,bool> new_assignment = solve_dpll(assignment);
-    formula = old_formula;
-    return new_assignment;
+    if(solve_dpll(assignment).empty()) {
+        formula = old_formula;
+        return {};
+    }else {
+        formula=old_formula;
+        return assignment;
+    }
 }
