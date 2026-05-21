@@ -10,11 +10,11 @@ class graph {
     private:
         map<int,node> nodes;
         int next_id = 0;
-        bool oriented;
+        bool directed;
 
     public:
         graph();
-        graph(bool oriented);
+        graph(bool directed);
         
         const map<int,node>& get_nodes() const;
         const node& get_node_by_id(int id) const;
