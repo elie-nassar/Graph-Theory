@@ -6,7 +6,7 @@
 int main() {
     srand(time(0));
 
-    graph G = graph();
+    graph G = graph(false);
     G.add_node();
     G.add_node();
     G.add_node();
