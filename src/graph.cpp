@@ -1,6 +1,7 @@
 #include "graph.hpp"
 
-graph::graph() : nodes(map<int, node>()) {}
+graph::graph() : nodes(map<int, node>()), oriented(false) {}
+graph::graph(bool oriented) : nodes(map<int, node>()), oriented(oriented) {}
 
 const map<int, node> &graph::get_nodes() const {
     return nodes;
@@ -21,7 +22,7 @@ void graph::add_edge(int u, int v) {
 
 void graph::add_edge(node &u, node &v) {
     u.add_neighbor(v.get_id());
-    v.add_neighbor(u.get_id());
+    if(!oriented) v.add_neighbor(u.get_id());
 }
 
 bool graph::is_well_formed() const {
@@ -31,7 +32,7 @@ bool graph::is_well_formed() const {
         for (int id2 : n1.get_neighbor_ids()) {
             if (!nodes.contains(id2)) return false;
             node n2 = nodes.at(id2);
-            if (!n2.get_neighbor_ids().contains(id1))
+            if (!oriented and !n2.get_neighbor_ids().contains(id1))
                 return false;
         }
     }
@@ -43,15 +44,18 @@ string graph::to_dot() const {
 }
 
 string graph::to_dot(const unordered_map<int,int> &coloring) const{
-    string s = "graph {\n";
+    string s = oriented ? "digraph {\n" : "graph {\n";
     for (const auto& [id,n] : nodes) {
         if (!coloring.empty()) {
             s += "  " + to_string(id) + " [fillcolor=\"/rdbu11/"+to_string(coloring.at(id)) + "\" style=filled]\n";
         }
         else s += "  " + to_string(id) + "\n";
         for (int neighbor_id : n.get_neighbor_ids())
-            if (neighbor_id > id)
-                s += "  " + to_string(id) + "--" + to_string(neighbor_id) + "\n";
+            if(!oriented) {
+                if (neighbor_id > id) s += "  " + to_string(id) + "--" + to_string(neighbor_id) + "\n";
+            }else {
+                s += "  " + to_string(id) + "->" + to_string(neighbor_id) + "\n";
+            }
     }
     s += "}";
     return s;

@@ -1,4 +1,4 @@
-#include "graph_coloring.hpp"
+#include "proper_coloring.hpp"
 #include "sat.hpp"
 
 int choose_next_node(const graph& G, int k,const unordered_map<int,int>& coloring) {
@@ -24,7 +24,7 @@ unordered_set<int> get_available_colors(const graph& G, int node_id, int k, cons
     return available_colors;
 }
 
-bool verify_coloring(const graph& G,int k, const unordered_map<int,int>& coloring) {
+bool verify_proper_coloring(const graph& G,int k, const unordered_map<int,int>& coloring) {
     if(coloring.empty()) return true;
     unordered_set<int> colors;
     colors.reserve(k);
@@ -37,26 +37,26 @@ bool verify_coloring(const graph& G,int k, const unordered_map<int,int>& colorin
     return colors.size()<=k;
 }
 
-unordered_map<int,int> coloring_backtracking(const graph& G, int k) {
+unordered_map<int,int> proper_coloring_backtracking(const graph& G, int k) {
     unordered_map<int,int> coloring;
     coloring.reserve(G.size());
-    return coloring_backtracking(G,k,coloring);
+    return proper_coloring_backtracking(G,k,coloring);
 }
 
-unordered_map<int,int> coloring_backtracking(const graph& G, int k, unordered_map<int,int>& coloring) {
+unordered_map<int,int> proper_coloring_backtracking(const graph& G, int k, unordered_map<int,int>& coloring) {
     int node_id = choose_next_node(G,k,coloring);
     if(node_id==-1) return coloring;
     
     for(int color:get_available_colors(G,node_id,k,coloring)) {
         coloring[node_id] = color;
-        if(!coloring_backtracking(G,k,coloring).empty()) return coloring;
+        if(!proper_coloring_backtracking(G,k,coloring).empty()) return coloring;
         coloring[node_id] = 0;
     }
 
     return {};
 }
 
-unordered_map<int,int> coloring_sat(const graph& G,int k) {
+unordered_map<int,int> proper_coloring_sat(const graph& G,int k) {
     vector<clause> clauses;
     for(const auto& [id,n]:G.get_nodes()) {
         clause at_least_one;
