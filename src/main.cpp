@@ -1,15 +1,25 @@
 #include "graph.hpp"
 #include "sat.hpp"
 #include "proper_coloring.hpp"
+#include "binary_tree.hpp"
 #include <ctime>
 #include <set>
 
 int main() {
     srand(time(0));
 
-    graph g = graph::random(5,7);
-    g.save("img");
-    g.save("coloring",proper_coloring_dp_naive(g,3));
+    binary_tree bt;
+    node c12(2);
+    node c1m2(-2);
+    node cm12(2);
+    node cm1m2(-2);
+    node c1(1,&c12,&c1m2);
+    node cm1(-1,&cm12,&cm1m2);
+    bt.get_root()->set_left_child(&c1);
+    bt.get_root()->set_right_child(&cm1);
+    cout << bt.get_root()->get_left_child()->get_value() << endl;
+    cout << bt.to_dot() << endl;
+    bt.save("binary_tree");
 
     /* for(int i=0;i<1;i++) {
         graph G = graph::random(20,50);
