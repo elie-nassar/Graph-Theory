@@ -8,11 +8,9 @@
 int main() {
     srand(time(0));
 
-    graph G = graph::random(4,4);
+    graph G = graph::random(6,7);
     G.save("graph");
-    binary_tree bt = get_subgraphs_binary_tree(G);
-    cout << bt.to_dot() << endl;
-    bt.save("binary_tree");
+    proper_coloring_dp(G,3);
 
     /* for(int i=0;i<1;i++) {
         graph G = graph::random(20,50);
