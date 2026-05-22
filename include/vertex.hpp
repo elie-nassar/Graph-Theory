@@ -3,15 +3,15 @@
 
 using namespace std;
 
-class node {
+class vertex {
 	private:
 		int id;
 		set<int> neighbor_ids;
 
 	public:
-		node();
-		node(int id);
-		node(int id,const set<int>& neighbor_ids);
+		vertex();
+		vertex(int id);
+		vertex(int id,const set<int>& neighbor_ids);
 
 		const int get_id() const;
 		const set<int>& get_neighbor_ids() const;

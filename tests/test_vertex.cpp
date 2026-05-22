@@ -1,17 +1,17 @@
 #include "doctest.h"
-#include "node.hpp"
+#include "vertex.hpp"
 
 #include <set>
 
 TEST_CASE("node default constructor") {
-    node n;
+    vertex n;
 
     CHECK(n.get_id() == 0);
     CHECK(n.get_neighbor_ids().empty());
 }
 
 TEST_CASE("node constructor with id") {
-    node n(5);
+    vertex n(5);
 
     CHECK(n.get_id() == 5);
     CHECK(n.get_neighbor_ids().empty());
@@ -20,14 +20,14 @@ TEST_CASE("node constructor with id") {
 TEST_CASE("node constructor with id and neighbors") {
     std::set<int> neighbors = {1, 2, 3};
 
-    node n(10, neighbors);
+    vertex n(10, neighbors);
 
     CHECK(n.get_id() == 10);
     CHECK(n.get_neighbor_ids() == neighbors);
 }
 
 TEST_CASE("add_neighbor") {
-    node n(1);
+    vertex n(1);
 
     n.add_neighbor(2);
     n.add_neighbor(3);
@@ -45,7 +45,7 @@ TEST_CASE("add_neighbor") {
 }
 
 TEST_CASE("remove_neighbor") {
-    node n(1);
+    vertex n(1);
 
     n.add_neighbor(2);
     n.add_neighbor(3);
@@ -60,7 +60,7 @@ TEST_CASE("remove_neighbor") {
 }
 
 TEST_CASE("add_neighbor and remove_neighbor") {
-    node n(1);
+    vertex n(1);
 
     n.add_neighbor(1);
     n.add_neighbor(2);
