@@ -8,16 +8,9 @@
 int main() {
     srand(time(0));
 
-    binary_tree bt;
-    node c12(2);
-    node c1m2(-2);
-    node cm12(2);
-    node cm1m2(-2);
-    node c1(1,&c12,&c1m2);
-    node cm1(-1,&cm12,&cm1m2);
-    bt.get_root()->set_left_child(&c1);
-    bt.get_root()->set_right_child(&cm1);
-    cout << bt.get_root()->get_left_child()->get_value() << endl;
+    graph G = graph::random(4,4);
+    G.save("graph");
+    binary_tree bt = get_subgraphs_binary_tree(G);
     cout << bt.to_dot() << endl;
     bt.save("binary_tree");
 

@@ -1,7 +1,7 @@
 #include "doctest.h"
 #include "binary_tree.hpp"
 
-TEST_CASE("binaray_tree constructor") {
+TEST_CASE("binary_tree constructor") {
     binary_tree bt;
     CHECK(bt.get_root()->get_value()==0);
     CHECK(bt.get_root()->get_left_child()==nullptr);

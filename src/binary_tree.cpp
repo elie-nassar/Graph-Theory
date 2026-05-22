@@ -1,6 +1,6 @@
 #include "binary_tree.hpp"
 
-binary_tree::binary_tree() : root(node(0,nullptr,nullptr)) {}
+binary_tree::binary_tree() : root(node(0,nullptr,nullptr,false)) {}
 node* binary_tree::get_root() {return &root;}
 string binary_tree::to_dot() const{
     string s = "digraph {\n";
@@ -24,22 +24,24 @@ int binary_tree::save(string filename) const {
 }
 
 int node::next_id = 0;
-node::node(int value,node* left_child,node* right_child) : value(value),left_child(left_child), right_child(right_child) {id=node::next_id;node::next_id++;}
-node::node(int value) : node(value,nullptr,nullptr) {}
+node::node(int value,node* left_child,node* right_child,bool minus) : value(value),left_child(left_child), right_child(right_child), minus(minus) {id=node::next_id;node::next_id++;}
+node::node(int value) : node(value,nullptr,nullptr,false) {}
+node::node(int value,bool minus) : node(value,nullptr,nullptr,minus) {}
 int node::get_value() const {return value;}
 int node::get_id() const {return id;}
+bool node::get_minus() const {return minus;}
 node* node::get_left_child() const {return left_child;}
 node* node::get_right_child() const {return right_child;}
 void node::set_right_child(node* right_child) {this->right_child = right_child;}
 void node::set_left_child(node* left_child) {this->left_child = left_child;}
 string node::to_dot() const {
-    string s = to_string(id)+" [label=\""+to_string(value)+"\"]\n";
+    string s = to_string(id)+" [label=\""+(get_minus() ? "-" : "")+to_string(value)+"\"]\n";
     if(this->get_left_child()!=nullptr) {
         s+=to_string(id) + "->" + to_string(this->get_left_child()->get_id())+="\n";
         s+=this->get_left_child()->to_dot();
     }
     if(this->get_right_child()!=nullptr) {
-        s+=to_string(id) + "->" + to_string(this->get_right_child()->get_id())+="\n";
+        s+=to_string(id) + "->"+ to_string(this->get_right_child()->get_id())+="\n";
         s+=this->get_right_child()->to_dot();
     }
     return s;

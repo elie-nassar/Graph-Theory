@@ -1,3 +1,4 @@
+#pragma once
 #include <fstream>
 #include <iostream>
 
@@ -10,11 +11,14 @@ class node {
         int value;
         node* left_child;
         node* right_child;
+        bool minus;
     public:
-        node(int value,node* left_child,node* right_child);
+        node(int value,node* left_child,node* right_child,bool minus);
+        node(int value,bool minus);
         node(int value);
         int get_value() const;
         int get_id() const;
+        bool get_minus() const;
         node* get_left_child() const;
         node* get_right_child() const;
         void set_right_child(node* right_child);

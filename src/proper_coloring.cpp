@@ -152,7 +152,22 @@ unordered_map<int,int> proper_coloring_dp_naive(const graph& G, int k) {
     return {};
 }
 
-
+binary_tree get_subgraphs_binary_tree(const graph& G) {
+    binary_tree bt;
+    set<node*> curr_nodes = {bt.get_root()};
+    set<node*> next_nodes;
+    for(const auto& [id,vert]:G.get_vertices()) {
+        next_nodes.clear();
+        for(auto n:curr_nodes) {
+            n->set_left_child(new node(id,false));
+            n->set_right_child(new node(id,true));
+            next_nodes.insert(n->get_left_child());
+            next_nodes.insert(n->get_right_child());
+        }
+        curr_nodes = next_nodes;
+    }
+    return bt;
+}
 
 unordered_map<int,int> proper_coloring_dp(const graph& G, int k) {
     return proper_coloring_dp_naive(G,k);
