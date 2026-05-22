@@ -15,6 +15,7 @@ class node {
     public:
         node(int value,node* left_child,node* right_child,bool minus);
         node(int value,bool minus);
+        node(int value,node* left_child,node* right_child);
         node(int value);
         int get_value() const;
         int get_id() const;

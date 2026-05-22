@@ -25,6 +25,7 @@ int binary_tree::save(string filename) const {
 
 int node::next_id = 0;
 node::node(int value,node* left_child,node* right_child,bool minus) : value(value),left_child(left_child), right_child(right_child), minus(minus) {id=node::next_id;node::next_id++;}
+node::node(int value,node* left_child,node* right_child) : node(value,left_child,right_child,false) {}
 node::node(int value) : node(value,nullptr,nullptr,false) {}
 node::node(int value,bool minus) : node(value,nullptr,nullptr,minus) {}
 int node::get_value() const {return value;}
