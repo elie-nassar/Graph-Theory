@@ -37,12 +37,6 @@ bool verify_proper_coloring(const graph& G,int k, const unordered_map<int,int>& 
     return colors.size()<=k;
 }
 
-unordered_map<int,int> proper_coloring_backtracking(const graph& G, int k) {
-    unordered_map<int,int> coloring;
-    coloring.reserve(G.size());
-    return proper_coloring_backtracking(G,k,coloring);
-}
-
 unordered_map<int,int> proper_coloring_backtracking(const graph& G, int k, unordered_map<int,int>& coloring) {
     int node_id = choose_next_node(G,k,coloring);
     if(node_id==-1) return coloring;
@@ -54,6 +48,12 @@ unordered_map<int,int> proper_coloring_backtracking(const graph& G, int k, unord
     }
 
     return {};
+}
+
+unordered_map<int,int> proper_coloring_backtracking(const graph& G, int k) {
+    unordered_map<int,int> coloring;
+    coloring.reserve(G.size());
+    return proper_coloring_backtracking(G,k,coloring);
 }
 
 unordered_map<int,int> proper_coloring_sat(const graph& G,int k) {
@@ -87,4 +87,67 @@ unordered_map<int,int> proper_coloring_sat(const graph& G,int k) {
     }
 
     return coloring;
+}
+
+unordered_map<int,int> proper_coloring_dp_naive(const graph& G, int k) {
+    map<set<int>,unordered_map<int,int>> coloring_dp[k+1];
+    vector<int> node_ids;
+    for(const auto& [id,n]:G.get_nodes()) node_ids.push_back(id);
+
+    set<set<int>> candidate_sets;
+    for (int mask=1;mask<(1 << node_ids.size());mask++){
+        set<int> candidate_set;
+        for(int id=0;id<node_ids.size();id++) 
+            if((mask >> id) & 1) candidate_set.insert(id);
+        candidate_sets.insert(candidate_set);
+    }
+
+    // j=1
+    for(const set<int>& candidate_set:candidate_sets) {
+        bool is_independant = true;
+        unordered_map<int,int> assignment;
+        for(int id:candidate_set) {
+            assignment[id]=1;
+            for(int neighbor_id:G.get_node_by_id(id).get_neighbor_ids()) {
+                if(find(candidate_set.begin(), candidate_set.end(), neighbor_id)!=candidate_set.end()) {
+                    is_independant = false;
+                    break;
+                }
+            }
+        }
+        if(is_independant) coloring_dp[1][candidate_set] = assignment;
+    }
+
+    // 2<=j<=k
+    for(int j=2;j<=k;j++) {
+        for(const set<int>& candidate_set:candidate_sets) {
+            vector<int> v(candidate_set.begin(),candidate_set.end());
+            for (int mask=1;mask<(1 << v.size());mask++){
+                set<int> p1,p2;
+                for(int i=0;i<v.size();i++) {
+                    if((mask >> i) & 1) p1.insert(v[i]);
+                    else p2.insert(v[i]);
+                }
+                if(coloring_dp[1].contains(p1) and coloring_dp[j-1].contains(p2)) {
+                    unordered_map<int,int> assignment;
+                    for(const auto& [id,color]:coloring_dp[1][p1]) assignment[id] = color;
+                    for(const auto& [id,color]:coloring_dp[j-1][p2]) assignment[id] = color+1;
+                    coloring_dp[j][candidate_set] = assignment;
+                    break;
+                }
+                if(coloring_dp[1].contains(p2) and coloring_dp[j-1].contains(p1)) {
+                    unordered_map<int,int> assignment;
+                    for(const auto& [id,color]:coloring_dp[1][p2]) assignment[id] = color;
+                    for(const auto& [id,color]:coloring_dp[j-1][p1]) assignment[id] = color+1;
+                    coloring_dp[j][candidate_set] = assignment;
+                    break;
+                }
+            }
+
+        }
+    }
+
+    set<int> node_ids_set = set<int>(node_ids.begin(),node_ids.end());
+    if(coloring_dp[k].contains(node_ids_set)) return coloring_dp[k][node_ids_set];
+    return {};
 }
