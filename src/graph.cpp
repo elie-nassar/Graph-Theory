@@ -1,9 +1,9 @@
 #include "graph.hpp"
 
-graph::graph() : vertices(map<int, vertex>()), directed(false) {}
-graph::graph(bool directed) : vertices(map<int, vertex>()), directed(directed) {}
+graph::graph() : vertices(unordered_map<int, vertex>()), directed(false) {}
+graph::graph(bool directed) : vertices(unordered_map<int, vertex>()), directed(directed) {}
 
-const map<int, vertex> &graph::get_vertices() const {
+const unordered_map<int, vertex> &graph::get_vertices() const {
     return vertices;
 }
 

@@ -7,33 +7,33 @@
 
 int main() {
     srand(time(0));
+    
 
-    graph G = graph::random(6,7);
-    G.save("graph");
-    proper_coloring_dp(G,3);
-
-    /* for(int i=0;i<1;i++) {
-        graph G = graph::random(20,50);
+    float tot = 0;
+    for(int i=0;i<30;i++) {
+        graph G = graph::random(100,150);
         //G.save("img");
 
         clock_t before = clock();
-        unordered_map<int,int> c_back = proper_coloring_backtracking(G,3);
-        clock_t duration_back = clock() - before;
-        cout << "Backtracking : " << (float)duration_back / CLOCKS_PER_SEC << "sec" << endl;
+        //unordered_map<int,int> c_back = proper_coloring_backtracking(G,3);
+        //clock_t duration_back = clock() - before;
+        //cout << "Backtracking : " << (float)duration_back / CLOCKS_PER_SEC << "sec" << endl;
         before = clock();
         unordered_map<int,int> c_sat = proper_coloring_sat(G,3);
         clock_t duration_sat = clock() - before;
         cout << "SAT : " << (float)duration_sat / CLOCKS_PER_SEC << "sec" << endl;
-        before = clock();
-        unordered_map<int,int> c_dp = proper_coloring_dp(G,3);
-        clock_t duration_dp = clock() - before;
-        cout << "DP : " << (float)duration_dp / CLOCKS_PER_SEC << "sec" << endl;
-        if(!verify_proper_coloring(G,3,c_back)) cout << "ERREUR BACKTRACKING" << endl;
+        //before = clock();
+        //unordered_map<int,int> c_dp = proper_coloring_dp(G,3);
+        //clock_t duration_dp = clock() - before;
+        //cout << "DP : " << (float)duration_dp / CLOCKS_PER_SEC << "sec" << endl;
+        //if(!verify_proper_coloring(G,3,c_back)) cout << "ERREUR BACKTRACKING" << endl;
         if(!verify_proper_coloring(G,3,c_sat)) cout << "ERREUR SAT" << endl;
-        if(!verify_proper_coloring(G,3,c_dp)) cout << "ERREUR DP" << endl;
+        //if(!verify_proper_coloring(G,3,c_dp)) cout << "ERREUR DP" << endl;
         //G.save("coloring_backtracking",c_back);
         //G.save("coloring_sat",c_sat);
-    } */
+        tot+=(float)duration_sat / CLOCKS_PER_SEC;
+    }
+    cout << "Moyenne : " << tot/100 << "sec" << endl;
 
     /* sat SAT = sat({
         {1,2,3},

@@ -109,7 +109,7 @@ unordered_map<int,int> proper_coloring_dp_naive(const graph& G, int k) {
         for(int id:candidate_set) {
             assignment[id]=1;
             for(int neighbor_id:G.get_vertex_by_id(id).get_neighbor_ids()) {
-                if(find(candidate_set.begin(), candidate_set.end(), neighbor_id)!=candidate_set.end()) {
+                if(candidate_set.find(neighbor_id)!=candidate_set.end()) {
                     is_independant = false;
                     break;
                 }

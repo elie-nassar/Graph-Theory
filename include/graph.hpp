@@ -1,5 +1,6 @@
 #pragma once
 #include <map>
+#include <unordered_map>
 #include <set>
 #include <vector>
 #include <fstream>
@@ -25,7 +26,7 @@ class vertex {
 
 class graph {
     private:
-        map<int,vertex> vertices;
+        unordered_map<int,vertex> vertices;
         int next_id = 0;
         bool directed;
 
@@ -33,7 +34,7 @@ class graph {
         graph();
         graph(bool directed);
         
-        const map<int,vertex>& get_vertices() const;
+        const unordered_map<int,vertex>& get_vertices() const;
         const vertex& get_vertex_by_id(int id) const;
         int add_vertex();
         void add_edge(int u,int v);

@@ -38,11 +38,11 @@ void node::set_left_child(node* left_child) {this->left_child = left_child;}
 string node::to_dot() const {
     string s = to_string(id)+" [label=\""+(get_minus() ? "-" : "")+to_string(value)+"\"]\n";
     if(this->get_left_child()!=nullptr) {
-        s+=to_string(id) + "->" + to_string(this->get_left_child()->get_id())+="\n";
+        s+=to_string(id) + "->" + to_string(this->get_left_child()->get_id())+"\n";
         s+=this->get_left_child()->to_dot();
     }
     if(this->get_right_child()!=nullptr) {
-        s+=to_string(id) + "->"+ to_string(this->get_right_child()->get_id())+="\n";
+        s+=to_string(id) + "->"+ to_string(this->get_right_child()->get_id())+"\n";
         s+=this->get_right_child()->to_dot();
     }
     return s;
