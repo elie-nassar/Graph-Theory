@@ -151,29 +151,3 @@ unordered_map<int,int> proper_coloring_dp_naive(const graph& G, int k) {
     if(coloring_dp[k].contains(node_ids_set)) return coloring_dp[k][node_ids_set];
     return {};
 }
-
-set<set<int>> get_maximal_independant_sets(const graph& G) {
-    set<set<int>> maximal_independant_sets;
-    set<int> unvisited_vertices;
-    for(const auto& [id,vert]:G.get_vertices()) unvisited_vertices.insert(id);
-
-    while(!unvisited_vertices.empty()) {
-        int vertex_id = *unvisited_vertices.begin();
-        set<int> indep_max = {vertex_id};
-        set<int> next_vertices = unvisited_vertices;
-        
-    }
-
-
-    return maximal_independant_sets;
-} 
-
-unordered_map<int,int> proper_coloring_dp(const graph& G, int k) {
-    set<set<int>> maximal_independant_sets = get_maximal_independant_sets(G);
-    for(const auto& indep_set:maximal_independant_sets) {
-        for(const int& i:indep_set) cout << i << " ";
-        cout << endl;
-    }
-    cout << "hey" << endl;
-    return {};
-}
