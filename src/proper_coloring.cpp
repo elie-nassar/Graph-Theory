@@ -144,3 +144,59 @@ std::vector<int> proper_coloring_dp_naive(const graph& G, int k) {
     for(int i=0;i<G.size();i++) assignment[i] = m[i];
     return assignment;
 }
+
+std::set<std::vector<int>> get_max_independant_sets(const graph& G) {
+
+}
+
+std::vector<int> proper_coloring_dp(const graph& G, int k) {
+    std::set<std::vector<int>> max_independant_sets;
+    std::set<std::vector<int>> j_1_colorable_sets;
+    std::set<std::vector<int>> j_colorable_sets;
+
+    for (int mask=1;mask<(1 << G.size());mask++){
+        bool is_independant = true;
+        std::vector<int> assignment(G.size(),0);
+        for(int u=0;u<G.size();u++) {
+            if((mask >> u) & 1) {
+                assignment[u]=1;
+                for(int v:G.get_neighbors(u)) {
+                    if((mask >> v) & 1) {
+                        is_independant = false;
+                        break;
+                    }
+                }
+            }
+        }
+        if(is_independant) max_independant_sets.insert(assignment);
+    }
+
+    j_1_colorable_sets = max_independant_sets;
+    for(int j=2;j<=k;j++) {
+        for (int mask=1;mask<(1 << G.size());mask++){
+            std::set<int> candidate_set;
+            for(int u=0;u<G.size();u++) {
+                if((mask >> u) & 1) candidate_set.insert(u);
+            }
+            //detect if it has subgraphs in j-1 and indep...
+        }
+    }
+
+
+
+    for(const auto& assignment:j_colorable_sets) {
+        bool good_assignment = true;
+        for(int i=0;i<G.size();i++) {
+            if(assignment[i]==0) {
+                good_assignment = false;
+                break;
+            }
+        } 
+        if(good_assignment) return assignment;
+    }
+    return {};
+}
+
+std::vector<int> proper_coloring_inclusion_exclusion(const graph &G, int k) {
+
+}

@@ -7,9 +7,12 @@ using namespace std;
 
 int main() {
     srand(time(0));
-    
+    vector<int> v1 = {1,2,3};
+    vector<int> v2 = {1,2,3};
+    graph g = graph::random(5,5);
+    g.save("coloring",proper_coloring_dp(g,2));
 
-    float tot_back = 0, tot_sat = 0;
+    /* float tot_back = 0, tot_sat = 0;
     for(int i=0;i<100;i++) {
         graph G = graph::random(50,250);
         //G.save("img");
@@ -35,7 +38,7 @@ int main() {
         tot_sat+=(float)duration_sat / CLOCKS_PER_SEC;
     }
     cout << "Moyenne Backtracking : " << tot_back/100 << "sec" << endl;
-    cout << "Moyenne SAT : " << tot_sat/100 << "sec" << endl;
+    cout << "Moyenne SAT : " << tot_sat/100 << "sec" << endl; */
 
     /* sat SAT = sat({
         {1,2,3},
