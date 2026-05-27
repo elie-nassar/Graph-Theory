@@ -7,38 +7,42 @@ using namespace std;
 
 int main() {
     srand(time(0));
-    vector<int> v1 = {1,2,3};
-    vector<int> v2 = {1,2,3};
-    graph g = graph::random(5,5);
-    g.save("coloring",proper_coloring_dp(g,2));
 
-    /* float tot_back = 0, tot_sat = 0;
-    for(int i=0;i<100;i++) {
-        graph G = graph::random(50,250);
-        //G.save("img");
+    float tot_back = 0, tot_sat = 0, tot_dp = 0, tot_dp_naive = 0;
+    int N = 50;
+    for(int i=0;i<N;i++) {
+        graph G = graph::random(13,20);
 
         clock_t before = clock();
-        //std::vector<int> c_back = proper_coloring_backtracking(G,3);
+        std::vector<int> c_back = proper_coloring_backtracking(G,3);
         clock_t duration_back = clock() - before;
         cout << "Backtracking : " << (float)duration_back / CLOCKS_PER_SEC << "sec" << endl;
         before = clock();
         vector<int> c_sat = proper_coloring_sat(G,3);
         clock_t duration_sat = clock() - before;
         cout << "SAT : " << (float)duration_sat / CLOCKS_PER_SEC << "sec" << endl;
-        //before = clock();
-        //unordered_map<int,int> c_dp = proper_coloring_dp(G,3);
-        //clock_t duration_dp = clock() - before;
-        //cout << "DP : " << (float)duration_dp / CLOCKS_PER_SEC << "sec" << endl;
-        //if(!verify_proper_coloring(G,3,c_back)) cout << "ERREUR BACKTRACKING" << endl;
+        before = clock();
+        vector<int> c_dp = proper_coloring_dp(G,3);
+        clock_t duration_dp = clock() - before;
+        cout << "DP : " << (float)duration_dp / CLOCKS_PER_SEC << "sec" << endl;
+        before = clock();
+        vector<int> c_dp_naive = proper_coloring_dp_naive(G,3);
+        clock_t duration_dp_naive = clock() - before;
+        cout << "DP Naif : " << (float)duration_dp_naive / CLOCKS_PER_SEC << "sec" << endl;
+        if(!verify_proper_coloring(G,3,c_back)) cout << "ERREUR BACKTRACKING" << endl;
         if(!verify_proper_coloring(G,3,c_sat)) cout << "ERREUR SAT" << endl;
-        //if(!verify_proper_coloring(G,3,c_dp)) cout << "ERREUR DP" << endl;
-        //G.save("coloring_backtracking",c_back);
-        //G.save("coloring_sat",c_sat);
+        if(!verify_proper_coloring(G,3,c_dp_naive)) cout << "ERREUR DP Naif" << endl;
+        if(!verify_proper_coloring(G,3,c_dp)) cout << "ERREUR DP" << endl;
+        if(c_sat.size()!=0 && (c_dp_naive.size()==0 || c_dp.size()==0)) cout << "ERREUR SAT/DP/DP Naif" << endl;
         tot_back+=(float)duration_back / CLOCKS_PER_SEC;
         tot_sat+=(float)duration_sat / CLOCKS_PER_SEC;
+        tot_dp+=(float)duration_dp / CLOCKS_PER_SEC;
+        tot_dp_naive+=(float)duration_dp_naive / CLOCKS_PER_SEC;
     }
-    cout << "Moyenne Backtracking : " << tot_back/100 << "sec" << endl;
-    cout << "Moyenne SAT : " << tot_sat/100 << "sec" << endl; */
+    cout << "Moyenne Backtracking : " << tot_back/N << "sec" << endl;
+    cout << "Moyenne SAT : " << tot_sat/N << "sec" << endl;
+    cout << "Moyenne DP naif : " << tot_dp_naive/N << "sec" << endl;
+    cout << "Moyenne DP : " << tot_dp/N << "sec" << endl;
 
     /* sat SAT = sat({
         {1,2,3},

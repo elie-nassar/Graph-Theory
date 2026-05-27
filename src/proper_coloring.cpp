@@ -1,10 +1,12 @@
 #include "proper_coloring.hpp"
 #include "sat.hpp"
 #include <map>
+#include <unordered_map>
+#include <bit>
 
 bool verify_proper_coloring(const graph& G,int k, const std::vector<int>& coloring) {
     if(coloring.empty()) return true;
-    for(int u=0;u<G.get_adjacency_list().size();u++) {
+    for(int u=0;u<(int)G.get_adjacency_list().size();u++) {
         if(coloring[u]>k) return false;
         for(int v:G.get_neighbors(u)) {
             if(coloring[u]==coloring[v]) return false;
@@ -14,7 +16,7 @@ bool verify_proper_coloring(const graph& G,int k, const std::vector<int>& colori
 }
 
 int choose_next_node(const graph& G, int k,const std::vector<int>& coloring) {
-    for(int u=0;u<G.get_adjacency_list().size();u++) if(coloring[u]==0) return u;
+    for(int u=0;u<(int)G.get_adjacency_list().size();u++) if(coloring[u]==0) return u;
     return -1;
 }
 
@@ -145,56 +147,62 @@ std::vector<int> proper_coloring_dp_naive(const graph& G, int k) {
     return assignment;
 }
 
-std::set<std::vector<int>> get_max_independant_sets(const graph& G) {
 
-}
 
 std::vector<int> proper_coloring_dp(const graph& G, int k) {
-    std::set<std::vector<int>> max_independant_sets;
-    std::set<std::vector<int>> j_1_colorable_sets;
-    std::set<std::vector<int>> j_colorable_sets;
+    int n = G.size();    
+    std::vector<int> adj(n, 0);
+    for (int u = 0; u < n; u++) {
+        for (int v : G.get_neighbors(u)) {
+            adj[u] = adj[u] | (1 << v); 
+        }
+    }
 
-    for (int mask=1;mask<(1 << G.size());mask++){
-        bool is_independant = true;
-        std::vector<int> assignment(G.size(),0);
-        for(int u=0;u<G.size();u++) {
-            if((mask >> u) & 1) {
-                assignment[u]=1;
-                for(int v:G.get_neighbors(u)) {
-                    if((mask >> v) & 1) {
-                        is_independant = false;
-                        break;
-                    }
+    std::vector<bool> is_indep(1 << n, false);
+    is_indep[0] = true;
+    
+    for (int mask = 1; mask < (1 << n); mask++) {
+        int u = std::countr_zero((unsigned)mask);
+        int prev_mask = mask ^ (1 << u);
+        is_indep[mask] = is_indep[prev_mask] && ((prev_mask & adj[u]) == 0);
+    }
+
+    std::vector<int> X(1 << n, -1);
+    std::vector<int> parent(1 << n, 0); 
+    
+    X[0] = 0;
+    
+    for (int mask = 1; mask < (1 << n); mask++) {
+        for (int submask = mask; submask > 0; submask = (submask - 1) & mask) {
+            if (is_indep[submask]) {
+                if (X[mask ^ submask] + 1 < X[mask] || X[mask]==-1) {
+                    X[mask] = X[mask ^ submask] + 1;
+                    parent[mask] = submask; 
                 }
             }
         }
-        if(is_independant) max_independant_sets.insert(assignment);
     }
 
-    j_1_colorable_sets = max_independant_sets;
-    for(int j=2;j<=k;j++) {
-        for (int mask=1;mask<(1 << G.size());mask++){
-            std::set<int> candidate_set;
-            for(int u=0;u<G.size();u++) {
-                if((mask >> u) & 1) candidate_set.insert(u);
+    if (X[(1 << n) - 1] > k) {
+        return {};
+    }
+
+    std::vector<int> coloring(n, 0);
+    int current_mask = (1 << n) - 1;
+    int current_color = 1;
+
+    while (current_mask > 0) {
+        int indep_set = parent[current_mask];
+        for (int u = 0; u < n; u++) {
+            if ((indep_set >> u) & 1) {
+                coloring[u] = current_color;
             }
-            //detect if it has subgraphs in j-1 and indep...
         }
+        current_mask ^= indep_set; 
+        current_color++;
     }
 
-
-
-    for(const auto& assignment:j_colorable_sets) {
-        bool good_assignment = true;
-        for(int i=0;i<G.size();i++) {
-            if(assignment[i]==0) {
-                good_assignment = false;
-                break;
-            }
-        } 
-        if(good_assignment) return assignment;
-    }
-    return {};
+    return coloring;
 }
 
 std::vector<int> proper_coloring_inclusion_exclusion(const graph &G, int k) {

@@ -22,9 +22,9 @@ void graph::add_edge(int u, int v) {
 }
 
 bool graph::is_well_formed() const {
-    for(int u=0;u<adjacency_list.size();u++) {
+    for(int u=0;u<(int)adjacency_list.size();u++) {
         for(int v:adjacency_list[u]) {
-            if(v>=adjacency_list.size()) return false;
+            if(v>=(int)adjacency_list.size()) return false;
             if(!directed && !adjacency_list[v].contains(u)) return false;
         }
     } 
@@ -37,7 +37,7 @@ std::string graph::to_dot() const {
 
 std::string graph::to_dot(const std::vector<int> &coloring) const{
     std::string s = directed ? "digraph {\n" : "graph {\n";
-    for(int u=0;u<adjacency_list.size();u++) {
+    for(int u=0;u<(int)adjacency_list.size();u++) {
         if (!coloring.empty()) {
             s += "  " + std::to_string(u) + " [fillcolor=\"/rdbu11/"+std::to_string(coloring[u]) + "\" style=filled]\n";
         }
