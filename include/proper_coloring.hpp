@@ -7,4 +7,5 @@ std::vector<int> proper_coloring_backtracking(const graph& G, int k);
 std::vector<int> proper_coloring_sat(const graph& G, int k);
 std::vector<int> proper_coloring_dp_naive(const graph& G, int k);
 std::vector<int> proper_coloring_dp(const graph& G, int k);
+std::vector<int> proper_coloring_dp_max_independant_sets(const graph& G, int k);
 std::vector<int> proper_coloring_inclusion_exclusion(const graph& G, int k);

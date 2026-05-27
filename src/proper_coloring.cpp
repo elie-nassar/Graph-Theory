@@ -205,6 +205,80 @@ std::vector<int> proper_coloring_dp(const graph& G, int k) {
     return coloring;
 }
 
+
+std::vector<int> proper_coloring_dp_max_independant_sets(const graph& G, int k) {
+    int n = G.size();    
+    std::vector<int> adj(n, 0);
+    for (int u = 0; u < n; u++) {
+        for (int v : G.get_neighbors(u)) {
+            adj[u] = adj[u] | (1 << v); 
+        }
+    }
+
+    std::vector<bool> is_indep(1 << n, false);
+    is_indep[0] = true;
+    
+    for (int mask = 1; mask < (1 << n); mask++) {
+        int u = std::countr_zero((unsigned)mask);
+        int prev_mask = mask ^ (1 << u);
+        is_indep[mask] = is_indep[prev_mask] && ((prev_mask & adj[u]) == 0);
+    }
+
+    std::vector<int> maximal_independent_sets;
+    for (int mask = 1; mask < (1 << n); mask++) {
+        if (!is_indep[mask]) continue;
+        
+        bool is_maximal = true;
+        for (int u = 0; u < n; u++) {
+            if ((mask & (1 << u)) == 0) {
+                if ((mask & adj[u]) == 0) {
+                    is_maximal = false;
+                    break;
+                }
+            }
+        }
+        
+        if (is_maximal) {
+            maximal_independent_sets.push_back(mask);
+        }
+    }
+
+    std::vector<int> X(1 << n, -1);
+    std::vector<int> parent(1 << n, 0);
+    X[0] = 0;
+
+    for (int mask = 1; mask < (1 << n); mask++) {
+        for (int mis : maximal_independent_sets) {
+            int prev_mask = mask & ~mis;
+            if (prev_mask != mask) {
+                if (X[prev_mask] + 1 < X[mask] || X[mask]==-1) {
+                    X[mask] = X[prev_mask] + 1;
+                    parent[mask] = mask & mis; 
+                }
+            }
+        }
+    }
+
+    if (X[(1 << n) - 1] > k) return {};
+
+    std::vector<int> coloring(n, 0);
+    int current_mask = (1 << n) - 1;
+    int current_color = 1;
+
+    while (current_mask > 0) {
+        int colored_subset = parent[current_mask];
+        for (int u = 0; u < n; u++) {
+            if ((colored_subset >> u) & 1) {
+                coloring[u] = current_color;
+            }
+        }
+        current_mask ^= colored_subset;
+        current_color++;
+    }
+
+    return coloring;
+}
+
 std::vector<int> proper_coloring_inclusion_exclusion(const graph &G, int k) {
 
 }
