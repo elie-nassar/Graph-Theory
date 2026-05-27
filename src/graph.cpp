@@ -1,84 +1,76 @@
 #include "graph.hpp"
 
-graph::graph() : vertices(unordered_map<int, vertex>()), directed(false) {}
-graph::graph(bool directed) : vertices(unordered_map<int, vertex>()), directed(directed) {}
+graph::graph() : adjacency_list({}), directed(false) {}
+graph::graph(bool directed) : adjacency_list({}), directed(directed) {}
 
-const unordered_map<int, vertex> &graph::get_vertices() const {
-    return vertices;
+const std::vector<std::set<int>>& graph::get_adjacency_list() const {
+    return adjacency_list;
 }
 
-const vertex &graph::get_vertex_by_id(int id) const {
-    return vertices.at(id);
+const std::set<int>& graph::get_neighbors(int id) const {
+    return adjacency_list[id];
 }
 
 int graph::add_vertex() {
-    vertices[next_id] = vertex(next_id);
-    return next_id++;
+    adjacency_list.push_back({});
+    return adjacency_list.size()-1;
 }
 
 void graph::add_edge(int u, int v) {
-    add_edge(vertices.at(u), vertices.at(v));
-}
-
-void graph::add_edge(vertex &u, vertex &v) {
-    u.add_neighbor(v.get_id());
-    if(!directed) v.add_neighbor(u.get_id());
+    adjacency_list[u].insert(v);
+    if(!directed) adjacency_list[v].insert(u);
 }
 
 bool graph::is_well_formed() const {
-    for (const auto &[id1,n1] : vertices) {
-        if (n1.get_id() != id1) return false;
-
-        for (int id2 : n1.get_neighbor_ids()) {
-            if (!vertices.contains(id2)) return false;
-            vertex n2 = vertices.at(id2);
-            if (!directed and !n2.get_neighbor_ids().contains(id1))
-                return false;
+    for(int u=0;u<adjacency_list.size();u++) {
+        for(int v:adjacency_list[u]) {
+            if(v>=adjacency_list.size()) return false;
+            if(!directed && !adjacency_list[v].contains(u)) return false;
         }
-    }
+    } 
     return true;
 }
 
-string graph::to_dot() const {
+std::string graph::to_dot() const {
     return to_dot({});
 }
 
-string graph::to_dot(const unordered_map<int,int> &coloring) const{
-    string s = directed ? "digraph {\n" : "graph {\n";
-    for (const auto& [id,n] : vertices) {
+std::string graph::to_dot(const std::vector<int> &coloring) const{
+    std::string s = directed ? "digraph {\n" : "graph {\n";
+    for(int u=0;u<adjacency_list.size();u++) {
         if (!coloring.empty()) {
-            s += "  " + to_string(id) + " [fillcolor=\"/rdbu11/"+to_string(coloring.at(id)) + "\" style=filled]\n";
+            s += "  " + std::to_string(u) + " [fillcolor=\"/rdbu11/"+std::to_string(coloring[u]) + "\" style=filled]\n";
         }
-        else s += "  " + to_string(id) + "\n";
-        for (int neighbor_id : n.get_neighbor_ids())
+        else s += "  " + std::to_string(u) + "\n";
+        for (int v:adjacency_list[u])
             if(!directed) {
-                if (neighbor_id > id) s += "  " + to_string(id) + "--" + to_string(neighbor_id) + "\n";
+                if (v > u) s += "  " + std::to_string(u) + "--" + std::to_string(v) + "\n";
             }else {
-                s += "  " + to_string(id) + "->" + to_string(neighbor_id) + "\n";
+                s += "  " + std::to_string(u) + "->" + std::to_string(v) + "\n";
             }
     }
     s += "}";
     return s;
 }
 
-ostream &operator<<(ostream &os, const graph &G) {
+std::ostream &operator<<(std::ostream &os, const graph &G) {
     os << G.to_dot();
     return os;
 }
 
 int graph::size() const {
-    return next_id;
+    return adjacency_list.size();
 }
 
-int graph::save(string filename) const {
+int graph::save(std::string filename) const {
     return save(filename, {});
 }
 
-int graph::save(string filename, const unordered_map<int,int> &coloring) const {
-    string dot_file = "./bin/" + filename + ".dot";
-    string png_file = "./bin/" + filename + ".png";
+int graph::save(std::string filename, const std::vector<int> &coloring) const {
+    std::string dot_file = "./bin/" + filename + ".dot";
+    std::string png_file = "./bin/" + filename + ".png";
 
-    ofstream f(dot_file);
+    std::ofstream f(dot_file);
     f << this->to_dot(coloring);
     f.close();
 
@@ -88,38 +80,18 @@ int graph::save(string filename, const unordered_map<int,int> &coloring) const {
 graph graph::random(int node_count, int edge_count) {
     graph g = graph();
     for(int i=0;i<node_count;i++) g.add_vertex();
-    vector<pair<int,int>> edges;
+    std::vector<std::pair<int,int>> edges;
     for(int i=0;i<node_count;i++)
         for(int j=i+1;j<node_count;j++)
             edges.push_back({i,j});
     
     for (int i=edges.size()-1;i>=0;i--) {
         int j = rand()%(i + 1);
-        pair<int,int> tmp = edges[i];
+        std::pair<int,int> tmp = edges[i];
         edges[i] = edges[j];
         edges[j] = tmp;
         if(i<edge_count) g.add_edge(edges[i].first,edges[i].second);
     }
     
     return g;
-}
-
-vertex::vertex() : vertex(0) {}
-vertex::vertex(int id) : vertex(id,set<int>()) {}
-vertex::vertex(int id,const set<int>& neighbor_ids) : id(id), neighbor_ids(neighbor_ids) {}
-
-const int vertex::get_id() const{
-    return id;
-}
-
-const set<int>& vertex::get_neighbor_ids() const{
-    return neighbor_ids;
-}
-
-void vertex::add_neighbor(int neighbor_id) {
-    neighbor_ids.insert(neighbor_id);
-}
-
-void vertex::remove_neighbor(int neighbor_id) {
-    neighbor_ids.erase(neighbor_id);
 }

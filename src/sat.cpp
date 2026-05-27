@@ -1,33 +1,32 @@
 #include "sat.hpp"
+#include <unordered_map>
 
-sat::sat(const vector<clause> &formula) : formula(formula) {
-    for(const clause& c:formula) {
-        for(const literal& l:c) {
-            if(l<0) variables.push_back(-l);
-            else variables.push_back(l);
-        }
+sat::sat(const std::vector<std::vector<int>> &formula) : formula(formula) {
+    std::unordered_set<int> variables;
+    for(const auto& clause:formula) {
+        for(const auto& lit:clause) variables.insert(abs(lit));
     }
+    variable_count = variables.size();
 }
 
-sat::sat(const vector<clause> &formula,const vector<int>& variables) : formula(formula), variables(variables) {}
-
-bool sat::evaluate(const unordered_map<int,bool>& assignment) const {
-    for(const clause& c:formula) {
+bool sat::evaluate(const std::vector<bool>& assignment) const {
+    for(const auto& clause:formula) {
         bool clause_sat = false;
-        for(const literal& l:c) {
-            if((l>0 and assignment.at(l)) or (l<0 and !assignment.at(-l))) {
+        for(const auto& lit:clause) {
+            if(abs(lit)>assignment.size()) return false;
+            if((lit>0 and assignment[lit-1]) || (lit<0 and !assignment[-lit-1])) {
                 clause_sat=true;
                 break;
             }
         };
-        if(!clause_sat) return false;
+        if(!clause_sat) return false; 
     }
     return true;
 }
 
-ostream& operator<<(ostream& os, const sat& SAT) {
+std::ostream& operator<<(std::ostream& os, const sat& SAT) {
     for(int i=0;i<(int)SAT.formula.size();i++) {
-        clause c = SAT.formula[i];
+        std::vector<int> c = SAT.formula[i];
         os << "(";
         for(int j=0;j<(int)c.size();j++) {
             if(c[j]<0) os << "-";
@@ -40,70 +39,63 @@ ostream& operator<<(ostream& os, const sat& SAT) {
     return os;
 }
 
-unordered_map<int,bool> sat::solve_exhaustive() {
-    unordered_map<int,bool> assignment;
-    assignment.reserve(variables.size());
-    for (int mask=0;mask<(1 << variables.size());mask++) {
-        int i=0;
-        for(int var:variables) {
-            assignment[var] = (mask >> i) & 1;
-            i++;
+std::vector<bool> sat::solve_exhaustive() {
+    std::vector<bool> assignment(variable_count);
+    for (int mask=0;mask<(1 << variable_count);mask++) {
+        for(int i=0;i<variable_count;i++) {
+            assignment[i] = (mask >> i) & 1;
         }
         if(evaluate(assignment)) return assignment;
     }
     return {};
 }
 
-literal search_next_literal(const vector<clause>& formula) {
-    unordered_map<int,int> pol;
-    for(const clause& c:formula) {
-        if(c.size()==1) return c[0];
-        for(const literal& l:c) {
-            if(!pol.contains(l)) pol[abs(l)] = l;
-            else if((pol[abs(l)]<0 and l>0) or (pol[abs(l)]>0 and l<0)) pol[abs(l)] = 0;
+int search_next_literal(const std::vector<std::vector<int>>& formula) {
+    std::unordered_map<int,int> pol;
+    for(const auto& clause:formula) {
+        if(clause.size()==1) return clause[0];
+        for(const auto& lit:clause) {
+            if(!pol.contains(lit)) pol[abs(lit)]= lit;
+            else if((pol[abs(lit)]<0 and lit>0) or (pol[abs(lit)]>0 and lit<0)) pol[abs(lit)] = 0;
         }
     }
-    for(const auto& [id,l]:pol) if(l!=0) return l;
+    for(const auto& [id,lit]:pol) if(lit!=0) return lit;
     return 0;
 }
 
 void sat::simplify(int variable, bool variable_assignment) {
     for(int i=formula.size()-1;i>=0;i--) {
-        clause& c = formula[i];
-        for(int j=c.size()-1;j>=0;j--) {
-            literal l = c[j];
+        std::vector<int>& clause = formula[i];
+        for(int j=clause.size()-1;j>=0;j--) {
+            int l = clause[j];
             if(abs(l)==variable) {
                 if((l>0 and variable_assignment) or (l<0 and !variable_assignment)) {
                     formula.erase(formula.begin()+i);
                     break;
                 }
                 if((l<0 and variable_assignment) or (l>0 and !variable_assignment)) {
-                    c.erase(c.begin()+j);
+                    clause.erase(clause.begin()+j);
                 }
             }
         }
     }
-    for(int i=0;i<variables.size();i++) {
-        if(variables[i]==variable) variables.erase(variables.begin()+i);
-    }
+    variable_count--;
 }
 
-unordered_map<int,bool> sat::solve_dpll() {
-    unordered_map<int,bool> assignment;
-    assignment.reserve(variables.size());
-    for(int variable:variables) assignment[variable]=false;
+std::vector<bool> sat::solve_dpll() {
+    std::vector<bool> assignment(variable_count,false);
     return solve_dpll(assignment);
 }
 
-unordered_map<int,bool> sat::solve_dpll(unordered_map<int,bool>& assignment) {
+std::vector<bool> sat::solve_dpll(std::vector<bool>& assignment) {
     if(formula.empty()) return assignment;
-    for(const clause& c:formula) if(c.size()==0) return {};
+    for(const auto& clause:formula) if(clause.size()==0) return {};
 
-    literal l = search_next_literal(formula);
-    vector<clause> old_formula = formula;
-    if(l!=0) {
-        assignment[abs(l)] = (l>0 ? true : false);
-        simplify(abs(l),assignment[abs(l)]);
+    int lit = search_next_literal(formula);
+    std::vector<std::vector<int>> old_formula = formula;
+    if(lit!=0) {
+        assignment[abs(lit)-1] = (lit>0 ? true : false);
+        simplify(abs(lit),assignment[abs(lit)-1]);
         if(solve_dpll(assignment).empty()) {
             formula = old_formula;
             return {};
@@ -113,15 +105,15 @@ unordered_map<int,bool> sat::solve_dpll(unordered_map<int,bool>& assignment) {
         }
     }
     int variable = abs(formula[0][0]);
-    assignment[variable]=true;
-    simplify(variable,assignment[variable]);
+    assignment[variable-1]=true;
+    simplify(variable,assignment[variable-1]);
     if(!solve_dpll(assignment).empty()) {
         formula = old_formula;
         return assignment;
     }
     formula = old_formula;
-    assignment[variable]=false;
-    simplify(variable,assignment[variable]);
+    assignment[variable-1]=false;
+    simplify(variable,assignment[variable-1]);
     if(solve_dpll(assignment).empty()) {
         formula = old_formula;
         return {};

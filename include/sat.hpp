@@ -1,30 +1,22 @@
 #pragma once
 #include <vector>
 #include <iostream>
-#include <unordered_map>
 #include <unordered_set>
-#include <set>
-
-using namespace std;
-
-using literal = int;
-using clause = vector<literal>;
 
 class sat {
-    private:
-        vector<clause> formula;
-        vector<int> variables;
+    public:
+        std::vector<std::vector<int>> formula;
+        int variable_count;
 
     public:
-        sat(const vector<clause> &formula);
-        sat(const vector<clause> &formula,const vector<int>& variables);
+        sat(const std::vector<std::vector<int>>& formula);
 
-        bool evaluate(const unordered_map<int,bool>& assignment) const;
+        bool evaluate(const std::vector<bool>& assignment) const;
         void simplify(int variable, bool variable_assignment);
 
-        unordered_map<int,bool> solve_exhaustive();
-        unordered_map<int,bool> solve_dpll();
-        unordered_map<int,bool> solve_dpll(unordered_map<int,bool>& assignment);
+        std::vector<bool> solve_exhaustive();
+        std::vector<bool> solve_dpll();
+        std::vector<bool> solve_dpll(std::vector<bool>& assignment);
 
-        friend ostream& operator<<(ostream& os, const sat& SAT);
+        friend std::ostream& operator<<(std::ostream& os, const sat& SAT);
 };

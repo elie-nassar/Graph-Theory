@@ -1,10 +1,8 @@
 #pragma once
 #include "graph.hpp"
-#include "binary_tree.hpp"
-#include <unordered_map>
 
-bool verify_proper_coloring(const graph& G, int k, const unordered_map<int,int>& coloring);
+bool verify_proper_coloring(const graph& G, int k, const std::vector<int>& coloring);
 
-unordered_map<int,int> proper_coloring_backtracking(const graph& G, int k);
-unordered_map<int,int> proper_coloring_sat(const graph& G, int k);
-unordered_map<int,int> proper_coloring_dp_naive(const graph& G, int k);
+std::vector<int> proper_coloring_backtracking(const graph& G, int k);
+std::vector<int> proper_coloring_sat(const graph& G, int k);
+std::vector<int> proper_coloring_dp_naive(const graph& G, int k);

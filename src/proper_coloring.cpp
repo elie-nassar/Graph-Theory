@@ -1,43 +1,36 @@
 #include "proper_coloring.hpp"
 #include "sat.hpp"
+#include <map>
 
-int choose_next_node(const graph& G, int k,const unordered_map<int,int>& coloring) {
-    for(const auto& [id,n]:G.get_vertices())
-        if(!coloring.contains(id) or coloring.at(id)==0) return id;
+bool verify_proper_coloring(const graph& G,int k, const std::vector<int>& coloring) {
+    if(coloring.empty()) return true;
+    for(int u=0;u<G.get_adjacency_list().size();u++) {
+        if(coloring[u]>k) return false;
+        for(int v:G.get_neighbors(u)) {
+            if(coloring[u]==coloring[v]) return false;
+        }
+    }
+    return true;
+}
+
+int choose_next_node(const graph& G, int k,const std::vector<int>& coloring) {
+    for(int u=0;u<G.get_adjacency_list().size();u++) if(coloring[u]==0) return u;
     return -1;
 }
 
-unordered_set<int> get_available_colors(const graph& G, int node_id, int k, const unordered_map<int,int>& coloring) {
-    unordered_set<int> unavailable_colors;
-    unavailable_colors.reserve(k);
-    for(auto& neighbor_id:G.get_vertex_by_id(node_id).get_neighbor_ids()) {
-        auto it_color = coloring.find(neighbor_id);
-        if(it_color!=coloring.end()) unavailable_colors.insert(it_color->second);
-    }
+std::unordered_set<int> get_available_colors(const graph& G, int u, int k, const std::vector<int>& coloring) {
+    std::vector<bool> colors(k,true);
+    for(int v:G.get_neighbors(u))
+        if(coloring[v]!=0) colors[coloring[v]-1] = false;
 
-    unordered_set<int> available_colors;
-    available_colors.reserve(k);
+    std::unordered_set<int> available_colors;
     for(int color=1;color<=k;color++)
-        if(!unavailable_colors.contains(color))
-            available_colors.insert(color);
+        if(colors[color-1]) available_colors.insert(color);
     
     return available_colors;
 }
 
-bool verify_proper_coloring(const graph& G,int k, const unordered_map<int,int>& coloring) {
-    if(coloring.empty()) return true;
-    unordered_set<int> colors;
-    colors.reserve(k);
-    for(const auto& [id,n]:G.get_vertices()) {
-        int color = coloring.at(id);
-        colors.insert(color);
-        for(int neighbor_id:n.get_neighbor_ids())
-            if(coloring.at(neighbor_id)==color) return false;
-    }
-    return colors.size()<=k;
-}
-
-unordered_map<int,int> proper_coloring_backtracking(const graph& G, int k, unordered_map<int,int>& coloring) {
+std::vector<int> proper_coloring_backtracking(const graph& G, int k, std::vector<int>& coloring) {
     int node_id = choose_next_node(G,k,coloring);
     if(node_id==-1) return coloring;
     
@@ -50,23 +43,22 @@ unordered_map<int,int> proper_coloring_backtracking(const graph& G, int k, unord
     return {};
 }
 
-unordered_map<int,int> proper_coloring_backtracking(const graph& G, int k) {
-    unordered_map<int,int> coloring;
-    coloring.reserve(G.size());
+std::vector<int> proper_coloring_backtracking(const graph& G, int k) {
+    std::vector<int> coloring(G.size(),0);
     return proper_coloring_backtracking(G,k,coloring);
 }
 
-unordered_map<int,int> proper_coloring_sat(const graph& G,int k) {
-    vector<clause> clauses;
-    for(const auto& [id,n]:G.get_vertices()) {
-        clause at_least_one;
-        for(int c=1;c<=k;c++) at_least_one.push_back(id*k+c);
+std::vector<int> proper_coloring_sat(const graph& G,int k) {
+    std::vector<std::vector<int>> clauses;
+    for(int u=0;u<G.size();u++) {
+        std::vector<int> at_least_one;
+        for(int c=1;c<=k;c++) at_least_one.push_back(u*k+c);
         clauses.push_back(at_least_one);
         
-        for(int neighbor_id:n.get_neighbor_ids()) {
-            if(neighbor_id>id) {
+        for(int v:G.get_neighbors(u)) {
+            if(v>u) {
                 for(int c=1;c<=k;c++) {
-                    clauses.push_back({-(id*k+c),-(neighbor_id*k+c)});
+                    clauses.push_back({-(u*k+c),-(v*k+c)});
                 }
             }
         }
@@ -76,39 +68,36 @@ unordered_map<int,int> proper_coloring_sat(const graph& G,int k) {
     auto assignment = SAT.solve_dpll();
     if(assignment.empty()) return {};
 
-    unordered_map<int,int> coloring;
-    for(const auto& [id,n]:G.get_vertices()) {
-        for(int c=1;c<=k;c++) {
-            if(assignment.at(id*k+c)) {
-                coloring[id] = c;
+    std::vector<int> coloring(G.size(),0);
+    for(int u=0;u<G.size();u++) {
+        for(int c=0;c<=k-1;c++) {
+            if(assignment[u*k+c]) {
+                coloring[u] = c;
                 break;
             }
         }
     }
-
     return coloring;
 }
 
-unordered_map<int,int> proper_coloring_dp_naive(const graph& G, int k) {
-    map<set<int>,unordered_map<int,int>> coloring_dp[k+1];
-    vector<int> node_ids;
-    for(const auto& [id,n]:G.get_vertices()) node_ids.push_back(id);
+std::vector<int> proper_coloring_dp_naive(const graph& G, int k) {
+    std::map<std::set<int>,std::unordered_map<int,int>> coloring_dp[k+1];
 
-    set<set<int>> candidate_sets;
-    for (int mask=1;mask<(1 << node_ids.size());mask++){
-        set<int> candidate_set;
-        for(int id=0;id<node_ids.size();id++) 
+    std::set<std::set<int>> candidate_sets;
+    for (int mask=1;mask<(1 << G.size());mask++){
+        std::set<int> candidate_set;
+        for(int id=0;id<G.size();id++) 
             if((mask >> id) & 1) candidate_set.insert(id);
         candidate_sets.insert(candidate_set);
     }
 
     // j=1
-    for(const set<int>& candidate_set:candidate_sets) {
+    for(const std::set<int>& candidate_set:candidate_sets) {
         bool is_independant = true;
-        unordered_map<int,int> assignment;
+        std::unordered_map<int,int> assignment;
         for(int id:candidate_set) {
             assignment[id]=1;
-            for(int neighbor_id:G.get_vertex_by_id(id).get_neighbor_ids()) {
+            for(int neighbor_id:G.get_neighbors(id)) {
                 if(candidate_set.find(neighbor_id)!=candidate_set.end()) {
                     is_independant = false;
                     break;
@@ -120,23 +109,23 @@ unordered_map<int,int> proper_coloring_dp_naive(const graph& G, int k) {
 
     // 2<=j<=k
     for(int j=2;j<=k;j++) {
-        for(const set<int>& candidate_set:candidate_sets) {
-            vector<int> v(candidate_set.begin(),candidate_set.end());
+        for(const std::set<int>& candidate_set:candidate_sets) {
+            std::vector<int> v(candidate_set.begin(),candidate_set.end());
             for (int mask=1;mask<(1 << v.size());mask++){
-                set<int> p1,p2;
+                std::set<int> p1,p2;
                 for(int i=0;i<v.size();i++) {
                     if((mask >> i) & 1) p1.insert(v[i]);
                     else p2.insert(v[i]);
                 }
                 if(coloring_dp[1].contains(p1) and coloring_dp[j-1].contains(p2)) {
-                    unordered_map<int,int> assignment;
+                    std::unordered_map<int,int> assignment;
                     for(const auto& [id,color]:coloring_dp[1][p1]) assignment[id] = color;
                     for(const auto& [id,color]:coloring_dp[j-1][p2]) assignment[id] = color+1;
                     coloring_dp[j][candidate_set] = assignment;
                     break;
                 }
                 if(coloring_dp[1].contains(p2) and coloring_dp[j-1].contains(p1)) {
-                    unordered_map<int,int> assignment;
+                    std::unordered_map<int,int> assignment;
                     for(const auto& [id,color]:coloring_dp[1][p2]) assignment[id] = color;
                     for(const auto& [id,color]:coloring_dp[j-1][p1]) assignment[id] = color+1;
                     coloring_dp[j][candidate_set] = assignment;
@@ -147,7 +136,11 @@ unordered_map<int,int> proper_coloring_dp_naive(const graph& G, int k) {
         }
     }
 
-    set<int> node_ids_set = set<int>(node_ids.begin(),node_ids.end());
-    if(coloring_dp[k].contains(node_ids_set)) return coloring_dp[k][node_ids_set];
-    return {};
+    std::set<int> node_ids_set;
+    for(int i=0;i<G.size();i++) node_ids_set.insert(i);
+    if(!coloring_dp[k].contains(node_ids_set)) return {};
+    std::unordered_map<int,int> m = coloring_dp[k][node_ids_set];
+    std::vector<int> assignment(G.size());
+    for(int i=0;i<G.size();i++) assignment[i] = m[i];
+    return assignment;
 }
