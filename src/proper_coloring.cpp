@@ -285,5 +285,31 @@ std::vector<int> proper_coloring_dp_max_independant_sets(const graph& G, int k) 
 }
 
 std::vector<int> proper_coloring_inclusion_exclusion(const graph &G, int k) {
+    int n = G.size();
+    std::vector<int> a(1<<n);
+    a[0] = 0;
 
+    int ck = 0;
+
+    std::vector<int> adj(n, 0);
+    for (int u = 0; u < n; u++) {
+        for (int v : G.get_neighbors(u)) {
+            adj[u] = adj[u] | (1 << v); 
+        }
+    }
+
+    for (int mask = 1; mask < (1 << n); mask++) {
+        int u = std::countr_zero((unsigned)mask);
+        int prev_mask1 = mask & ~(1 << u);
+        int prev_mask2 = (mask & ~(1 << u)) & ~adj[u];
+        a[mask] = 1 + a[prev_mask1] + a[prev_mask2];
+        int mask_size = std::popcount((unsigned)mask);
+        if((n-mask_size)%2==0) ck+=std::pow(a[mask],k);
+        else ck-=std::pow(a[mask],k);
+    }   
+
+    if(ck<=0) return {};
+
+
+    return {ck};
 }
