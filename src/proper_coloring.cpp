@@ -215,13 +215,18 @@ std::vector<int> proper_coloring_dp_max_independant_sets(const graph& G, int k) 
         }
     }
 
-    std::vector<bool> is_indep(1 << n, false);
+    std::vector<bool> is_indep(1 << n, true);
     is_indep[0] = true;
     
     for (int mask = 1; mask < (1 << n); mask++) {
         int u = std::countr_zero((unsigned)mask);
         int prev_mask = mask ^ (1 << u);
         is_indep[mask] = is_indep[prev_mask] && ((prev_mask & adj[u]) == 0);
+        /* for(int u=0;u<n;u++) 
+            if(((mask>>u) & 1)  && (adj[u]&mask)!=0) {
+                is_indep[mask] = false;
+                break;
+            } */
     }
 
     std::vector<int> maximal_independent_sets;
