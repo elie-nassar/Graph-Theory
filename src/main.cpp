@@ -8,11 +8,10 @@ using namespace std;
 int main() {
     srand(time(0));
 
-    graph g = graph::random(3,3);
-    vector<int> coloring = proper_coloring_inclusion_exclusion(g,3);
-    g.save("img");
-    cout << coloring[0] << endl;
-    //g.save("coloring",coloring);
+    graph g = graph::random(4,1000);
+    vector<int> coloring = proper_coloring_backtracking(g,4);
+    g.save("K4");
+    g.save("K4coloring",coloring);
 
     /* float tot_back = 0, tot_sat = 0, tot_dp = 0, tot_dp_naive = 0, tot_dp_max = 0;
     int N = 50;
