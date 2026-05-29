@@ -1,6 +1,7 @@
 #include "graph.hpp"
 #include "sat.hpp"
 #include "proper_coloring.hpp"
+#include "dominator_coloring.hpp"
 #include <ctime>
 
 using namespace std;
@@ -8,10 +9,9 @@ using namespace std;
 int main() {
     srand(time(0));
 
-    graph g = graph::random(4,1000);
-    vector<int> coloring = proper_coloring_backtracking(g,4);
-    g.save("K4");
-    g.save("K4coloring",coloring);
+    graph g = graph::random(3,1000);
+    g.save("img");
+    cout << verify_dominator_coloring(g,3,{1,2,3}) << endl;
 
     /* float tot_back = 0, tot_sat = 0, tot_dp = 0, tot_dp_naive = 0, tot_dp_max = 0;
     int N = 50;
