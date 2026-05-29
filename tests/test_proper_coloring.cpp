@@ -1,7 +1,7 @@
 #include "doctest.h"
 
 #include "graph.hpp"
-#include "proper_coloring.hpp"
+#include "coloring/proper_coloring.hpp"
 
 TEST_CASE("proper_coloring_backtracking") {
     graph g;

@@ -1,7 +1,7 @@
 #include "graph.hpp"
 #include "sat.hpp"
-#include "proper_coloring.hpp"
-#include "dominator_coloring.hpp"
+#include "coloring/proper_coloring.hpp"
+#include "coloring/dominator_coloring.hpp"
 #include <ctime>
 
 using namespace std;

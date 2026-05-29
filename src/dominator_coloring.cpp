@@ -1,4 +1,4 @@
-#include "dominator_coloring.hpp"
+#include "coloring/dominator_coloring.hpp"
 #include <unordered_set>
 
 bool verify_dominator_coloring(const graph& G,int k, const std::vector<int>& coloring) {
@@ -16,7 +16,7 @@ int choose_next_node(const graph& G,int k,const std::vector<int> coloring) {
     return -1;
 }
 
-std::unordered_set<int> get_available_colors(const graph& G, int u, int k, const std::vector<int>& coloring) {
+std::unordered_set<int> get_available_colors_dominator(const graph& G, int u, int k, const std::vector<int>& coloring) {
     std::vector<bool> colors(k,true);
     for(int v:G.get_neighbors(u))
         if(coloring[v]!=0) colors[coloring[v]-1] = false;
@@ -32,7 +32,7 @@ std::vector<int> dominator_coloring_backtracking(const graph& G,int k,std::vecto
     int node_id = choose_next_node(G,k,coloring);
     if(node_id==-1) return coloring;
 
-    for(int color:get_available_colors(G,node_id,k,coloring)) {
+    for(int color:get_available_colors_dominator(G,node_id,k,coloring)) {
         coloring[node_id] = color;
         if(!dominator_coloring_backtracking(G,k,coloring).empty()) return coloring;
         coloring[node_id] = 0;

@@ -1,4 +1,4 @@
-#include "proper_coloring.hpp"
+#include "coloring/proper_coloring.hpp"
 #include "sat.hpp"
 #include <map>
 #include <unordered_map>
