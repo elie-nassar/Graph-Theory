@@ -3,6 +3,7 @@
 #include <map>
 #include <unordered_map>
 #include <bit>
+#include <cmath>
 
 bool verify_proper_coloring(const graph& G,int k, const std::vector<int>& coloring) {
     if(coloring.empty()) return true;
@@ -115,7 +116,7 @@ std::vector<int> proper_coloring_dp_naive(const graph& G, int k) {
             std::vector<int> v(candidate_set.begin(),candidate_set.end());
             for (int mask=1;mask<(1 << v.size());mask++){
                 std::set<int> p1,p2;
-                for(int i=0;i<v.size();i++) {
+                for(int i=0;i<(int)v.size();i++) {
                     if((mask >> i) & 1) p1.insert(v[i]);
                     else p2.insert(v[i]);
                 }
