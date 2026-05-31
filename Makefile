@@ -17,6 +17,10 @@ test: $(OBJS) $(TESTS)
 	@mkdir -p bin
 	$(CXX) $(CXXFLAGS) -o $(TARGET_TEST) $(OBJS) tests/test_graph.cpp tests/test_proper_coloring.cpp tests/test_binary_tree.cpp tests/test_global.cpp
 
+benchmark: $(OBJS)
+	@mkdir -p bin
+	g++ -Wall -Wextra -std=c++20 -Iinclude/benchmark/include ./src/benchmark/proper_coloring_benchmark.cpp -Iinclude $(OBJS) -L./include/benchmark/build/src -lbenchmark -lpthread -o bin/benchmark
+
 build/%.o: src/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
