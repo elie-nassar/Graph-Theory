@@ -57,3 +57,38 @@ std::vector<int> dominator_coloring_backtracking(const graph& G,int k) {
     std::vector<int> coloring(G.size(),0);
     return dominator_coloring_backtracking(G,k,coloring);
 }
+
+std::vector<int> dominator_coloring_sat(const graph& G,int k) {
+    std::vector<std::vector<int>> clauses;
+    for(int u=0;u<G.size();u++) {
+        std::vector<int> at_least_one;
+        for(int c=1;c<=k;c++) {
+            at_least_one.push_back(u*k+c);
+            std::vector<int> dominator_neighborhood = {u*k+c};
+            for(int v:G.get_neighbors(u)) dominator_neighborhood.push_back(v*k+c);
+            clauses.push_back(dominator_neighborhood);
+        }
+        clauses.push_back(at_least_one);
+
+        for(int c1=1;c1<=k;c1++) {
+            for(int c2=c1+1;c2<=k;c2++) {
+                clauses.push_back({-(u*k+c1),-(u*k+c2)});
+            }
+        }
+    }
+
+    sat SAT(clauses);
+    auto assignment = SAT.solve_dpll();
+    if(assignment.empty()) return {};
+
+    std::vector<int> coloring(G.size(),0);
+    for(int u=0;u<G.size();u++) {
+        for(int c=0;c<=k-1;c++) {
+            if(assignment[u*k+c]) {
+                coloring[u] = c+1;
+                break;
+            }
+        }
+    }
+    return coloring;
+}
