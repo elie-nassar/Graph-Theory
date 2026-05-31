@@ -1,7 +1,7 @@
 #include "graph.hpp"
 #include "sat.hpp"
 #include "coloring/proper_coloring.hpp"
-#include "coloring/dominator_coloring.hpp"
+//#include "coloring/dominator_coloring.hpp"
 #include <ctime>
 
 using namespace std;
@@ -11,7 +11,7 @@ int main() {
 
     graph g = graph::random(3,1000);
     g.save("img");
-    cout << verify_dominator_coloring(g,3,{1,2,3}) << endl;
+    //cout << verify_dominator_coloring(g,3,{1,2,3}) << endl;
 
     /* float tot_back = 0, tot_sat = 0, tot_dp = 0, tot_dp_naive = 0, tot_dp_max = 0;
     int N = 50;

@@ -1,28 +1,27 @@
+TARGET_MAIN = bin/main
+TARGET_TEST = bin/test
+
 CXX = g++
-CXXFLAGS = -std=c++20 -Wall -O2 -Iinclude
+CXXFLAGS = -Wall -Wextra -std=c++20 -Iinclude
 
-APP_SRC = $(filter-out src/main.cpp, $(wildcard src/*.cpp))
-APP_OBJ = $(APP_SRC:src/%.cpp=build/%.o)
-MAIN_OBJ = build/main.o
+SRCS = src/graph.cpp src/coloring/proper_coloring.cpp src/sat.cpp src/binary_tree.cpp
+OBJS = $(SRCS:src/%.cpp=build/%.o)
 
-BIN = bin/main
-TEST_BIN = bin/tests_run
-TEST_SRC = $(wildcard tests/*.cpp) $(APP_SRC)
+all: $(TARGET_MAIN)
 
-all: $(BIN)
-
-$(BIN): $(APP_OBJ) $(MAIN_OBJ)
+$(TARGET_MAIN): $(OBJS) src/main.cpp
 	@mkdir -p bin
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-build/%.o: src/%.cpp
-	@mkdir -p build
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-test:
+test: $(OBJS) $(TESTS)
 	@mkdir -p bin
-	$(CXX) $(CXXFLAGS) $(TEST_SRC) -o $(TEST_BIN)
-	./$(TEST_BIN)
+	$(CXX) $(CXXFLAGS) -o $(TARGET_TEST) $(OBJS) tests/test_graph.cpp tests/test_proper_coloring.cpp tests/test_binary_tree.cpp tests/test_global.cpp
+
+build/%.o: src/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	rm -rf build bin
+
+.PHONY: all test clean
