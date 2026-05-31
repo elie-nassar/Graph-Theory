@@ -75,7 +75,7 @@ std::vector<int> proper_coloring_sat(const graph& G,int k) {
     for(int u=0;u<G.size();u++) {
         for(int c=0;c<=k-1;c++) {
             if(assignment[u*k+c]) {
-                coloring[u] = c;
+                coloring[u] = c+1;
                 break;
             }
         }
