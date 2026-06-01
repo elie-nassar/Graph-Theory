@@ -91,3 +91,92 @@ std::vector<int> dominator_coloring_sat(const graph& G,int k) {
     return coloring;
 }
 
+
+std::vector<int> dominator_coloring_dp(const graph& G,int k) {
+    int n = G.size();    
+    std::vector<int> adj(n, 0);
+    for (int u = 0; u < n; u++) {
+        for (int v : G.get_neighbors(u)) {
+            adj[u] = adj[u] | (1 << v); 
+        }
+    }
+
+    std::vector<bool> is_dominator(1 << n, false);
+    
+    for (int mask = 0; mask<(1<<n); mask++) {
+        int Dmask = mask;
+        for(int u=0;u<G.size();u++) if((mask>>u)&1) Dmask |= adj[u];
+        if(Dmask==(1<<n)-1) is_dominator[mask]=true;
+    }
+
+    std::vector<int> minimal_dominator_sets;
+    for (int mask = 1; mask < (1 << n); mask++) {
+        if (!is_dominator[mask]) continue;
+        
+        bool is_minimal = true;
+        for (int u = 0; u < n; u++) if((mask>>u)&1) {
+                int mask_u = mask ^ (1<<u);
+                if (is_dominator[mask_u]) {
+                    is_minimal = false;
+                    break;
+                }
+            }
+        
+        if (is_minimal) {
+            minimal_dominator_sets.push_back(mask);
+        }
+    }
+
+    for(auto mask:minimal_dominator_sets) {
+        for(int u=0;u<G.size();u++) if((mask>>u)&1) std::cout << u << " ";
+        std::cout << "\n";
+    }
+    
+    std::vector<int> Xd(1 << n, -1);
+    std::vector<int> parent(1 << n, 0);
+    Xd[0] = 0;
+
+    for (int mask = 1; mask < (1 << n); mask++) {
+        for (int mds : minimal_dominator_sets) {
+            if((mds | mask)== mask) {
+                for(int u=0;u<G.size();u++) if((mask>>u)&1) std::cout << u << " ";
+                std::cout << " mask\n";
+                for(int u=0;u<G.size();u++) if((mds>>u)&1) std::cout << u << " ";
+                std::cout << " mds\n";
+                int prev_mask = mask & ~mds;
+                std::cout << prev_mask << "\n";
+                if (prev_mask != mask) {
+                    std::cout << "oiui\n";
+                    if (Xd[prev_mask] + 1 > Xd[mask] || Xd[mask]==-1) {
+                        Xd[mask] = Xd[prev_mask] + 1;
+                        parent[mask] = mask & mds; 
+                    }
+                    std::cout << mask << " : " << Xd[mask] << "\n";
+                }
+            }
+        }
+    }
+
+    if (Xd[(1 << n) - 1] < k) return {};
+    for (int mask = 1; mask < (1 << n); mask++) {
+        for(int u=0;u<G.size();u++) if((mask>>u)&1) std::cout << u << " ";
+        std::cout << ": " << Xd[mask] << "\n";
+    }
+
+    std::vector<int> coloring(n, 0);
+    int current_mask = (1 << n) - 1;
+    int current_color = 1;
+
+    while (current_mask > 0) {
+        int colored_subset = parent[current_mask];
+        for (int u = 0; u < n; u++) {
+            if ((colored_subset >> u) & 1) {
+                coloring[u] = (current_color > k ? k : current_color);
+            }
+        }
+        current_mask ^= colored_subset;
+        current_color++;
+    }
+
+    return coloring;
+}
