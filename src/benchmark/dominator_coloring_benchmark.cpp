@@ -22,4 +22,15 @@ static void SAT(benchmark::State& state) {
 }
 BENCHMARK(SAT);
 
+static void DP(benchmark::State& state) {
+  for (auto _ : state) {
+    state.PauseTiming();
+    graph g = graph::random(18,30);
+    state.ResumeTiming();
+    dominator_coloring_dp(g,3);
+  }
+}
+BENCHMARK(DP);
+
+
 BENCHMARK_MAIN();

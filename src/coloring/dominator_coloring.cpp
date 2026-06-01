@@ -3,6 +3,7 @@
 #include <unordered_set>
 
 bool verify_dominator_coloring(const graph& G,int k, const std::vector<int>& coloring) {
+    if(coloring.empty()) return true;
     for(int u=0;u<G.size();u++) {
         std::vector<bool> colors(k,false);
         colors[coloring[u]-1] = true;
@@ -126,42 +127,26 @@ std::vector<int> dominator_coloring_dp(const graph& G,int k) {
             minimal_dominator_sets.push_back(mask);
         }
     }
-
-    for(auto mask:minimal_dominator_sets) {
-        for(int u=0;u<G.size();u++) if((mask>>u)&1) std::cout << u << " ";
-        std::cout << "\n";
-    }
     
-    std::vector<int> Xd(1 << n, -1);
+    std::vector<int> Xd(1 << n, 0);
     std::vector<int> parent(1 << n, 0);
     Xd[0] = 0;
 
     for (int mask = 1; mask < (1 << n); mask++) {
         for (int mds : minimal_dominator_sets) {
             if((mds | mask)== mask) {
-                for(int u=0;u<G.size();u++) if((mask>>u)&1) std::cout << u << " ";
-                std::cout << " mask\n";
-                for(int u=0;u<G.size();u++) if((mds>>u)&1) std::cout << u << " ";
-                std::cout << " mds\n";
                 int prev_mask = mask & ~mds;
-                std::cout << prev_mask << "\n";
                 if (prev_mask != mask) {
-                    std::cout << "oiui\n";
-                    if (Xd[prev_mask] + 1 > Xd[mask] || Xd[mask]==-1) {
+                    if (Xd[prev_mask] + 1 > Xd[mask]) {
                         Xd[mask] = Xd[prev_mask] + 1;
                         parent[mask] = mask & mds; 
                     }
-                    std::cout << mask << " : " << Xd[mask] << "\n";
                 }
             }
         }
     }
 
     if (Xd[(1 << n) - 1] < k) return {};
-    for (int mask = 1; mask < (1 << n); mask++) {
-        for(int u=0;u<G.size();u++) if((mask>>u)&1) std::cout << u << " ";
-        std::cout << ": " << Xd[mask] << "\n";
-    }
 
     std::vector<int> coloring(n, 0);
     int current_mask = (1 << n) - 1;
@@ -169,6 +154,7 @@ std::vector<int> dominator_coloring_dp(const graph& G,int k) {
 
     while (current_mask > 0) {
         int colored_subset = parent[current_mask];
+        if(colored_subset==0) break;
         for (int u = 0; u < n; u++) {
             if ((colored_subset >> u) & 1) {
                 coloring[u] = (current_color > k ? k : current_color);
@@ -177,6 +163,6 @@ std::vector<int> dominator_coloring_dp(const graph& G,int k) {
         current_mask ^= colored_subset;
         current_color++;
     }
-
+    for(int u=0;u<G.size();u++) if(coloring[u]==0) coloring[u]=1;
     return coloring;
 }
