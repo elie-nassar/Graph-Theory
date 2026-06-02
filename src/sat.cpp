@@ -13,7 +13,7 @@ bool sat::evaluate(const std::vector<bool>& assignment) const {
     for(const auto& clause:formula) {
         bool clause_sat = false;
         for(const auto& lit:clause) {
-            if(abs(lit)>assignment.size()) return false;
+            if(abs(lit)>(int)assignment.size()) return false;
             if((lit>0 and assignment[lit-1]) || (lit<0 and !assignment[-lit-1])) {
                 clause_sat=true;
                 break;
