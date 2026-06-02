@@ -95,3 +95,23 @@ graph graph::random(int node_count, int edge_count) {
     
     return g;
 }
+
+bool graph::is_connected() const {
+    std::vector<bool> visited(size(),false);
+    int visited_count = 0;
+    std::queue<int> q;
+    q.push(0);
+    visited[0]=true;
+    while(!q.empty()) {
+        int u = q.front();
+        q.pop();
+        visited_count++;
+
+        for(int v:get_neighbors(u)) if(!visited[v]) {
+            q.push(v);
+            visited[v]=true;
+        }
+    }
+
+    return visited_count==size();
+}

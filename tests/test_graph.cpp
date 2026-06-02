@@ -51,3 +51,17 @@ TEST_CASE("random") {
         CHECK(g.is_well_formed());
     }
 }
+
+TEST_CASE("connected") {
+    graph g;
+    g.add_vertex();
+    g.add_vertex();
+    g.add_vertex();
+    CHECK(!g.is_connected());
+    g.add_edge(0,1);
+    CHECK(!g.is_connected());
+    g.add_edge(0,2);
+    CHECK(g.is_connected());
+    g.add_edge(1,2);
+    CHECK(g.is_connected());
+}
