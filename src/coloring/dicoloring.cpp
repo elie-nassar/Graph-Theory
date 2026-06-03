@@ -28,3 +28,26 @@ bool verify_dicoloring(const graph& G,int k,const std::vector<int>& coloring) {
     return true;
 }
 
+int choose_next_node_dicoloring(const graph& G,int k,const std::vector<int> coloring) {
+    for(int u=0;u<G.size();u++) if(coloring[u]==0) return u;
+    return -1;
+}
+
+std::vector<int> dicoloring_backtracking(const graph& G,int k,std::vector<int>& coloring) {
+    int node_id = choose_next_node_dicoloring(G,k,coloring);
+    if(node_id==-1) return verify_dicoloring(G,k,coloring) ? coloring : std::vector<int>{};
+
+    for(int color=1;color<=k;color++) {
+        coloring[node_id] = color;
+        if(!dicoloring_backtracking(G,k,coloring).empty()) return coloring;
+        coloring[node_id] = 0;
+    }
+
+    return {};
+}
+
+std::vector<int> dicoloring_backtracking(const graph& G,int k) {
+    std::vector<int> coloring(G.size(),0);
+    return dicoloring_backtracking(G,k,coloring);
+}
+

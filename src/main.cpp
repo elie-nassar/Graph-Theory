@@ -21,7 +21,7 @@ int main() {
     g.add_edge(3,0);
     g.add_edge(0,2);
     g.save("graph");
-    vector<int> coloring = {1,1,1,2};
+    vector<int> coloring = dicoloring_backtracking(g,1);
     g.save("coloring",coloring);
     cout << verify_dicoloring(g,4,coloring) << endl;;
 
