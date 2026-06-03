@@ -1,4 +1,5 @@
 #include "rook_graph.hpp"
+#include "coloring/dicoloring.hpp"
 
 int convert(int x,int y,int n) {
     return y*n+x;
@@ -67,4 +68,9 @@ int rook_graph::save(std::string filename, const std::vector<int> &coloring) con
     f.close();
 
     return system(("neato -Tpng " + dot_file + " -o " + png_file).c_str());
+}
+
+int rook_graph::find_dichromatic_number(int n) {
+    rook_graph R = rook_graph(n);
+    
 }
