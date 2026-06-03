@@ -20,6 +20,10 @@ void graph::add_edge(int u, int v) {
     adjacency_list[u].insert(v);
     if(!directed) adjacency_list[v].insert(u);
 }
+void graph::remove_edge(int u,int v) {
+    adjacency_list[u].erase(v);
+    if(!directed) adjacency_list[v].erase(u);
+}
 
 bool graph::is_well_formed() const {
     for(int u=0;u<(int)adjacency_list.size();u++) {
