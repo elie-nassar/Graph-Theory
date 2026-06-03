@@ -41,7 +41,7 @@ std::string rook_graph::to_dot(const std::vector<int> &coloring) const{
     for(int u=0;u<(int)adjacency_list.size();u++) {
         s+= "  " + std::to_string(u)+" [";
         if(!coloring.empty()) s+= "fillcolor=\"/rdbu11/"+std::to_string(coloring[u]) + "\" style=filled overlap=\"prism1000\"";
-        s+="pos=\""+std::to_string(getX(u,n)*1.5)+","+std::to_string(getY(u,n)*1.5)+"!\"]\n";
+        s+="pos=\""+std::to_string(getX(u,n))+","+std::to_string(getY(u,n))+"!\"]\n";
 
         for (int v:adjacency_list[u])
             if(!directed) {
