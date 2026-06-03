@@ -4,4 +4,3 @@
 bool verify_dicoloring(const graph& G,int k,const std::vector<int>& coloring);
 
 std::vector<int> dicoloring_backtracking(const graph& G,int k);
-std::vector<int> dicoloring_sat(const graph& G,int k);
