@@ -4,7 +4,7 @@ TARGET_TEST = bin/test
 CXX = g++
 CXXFLAGS = -Wall -Wextra -std=c++20 -Iinclude
 
-SRCS = src/graph.cpp src/coloring/proper_coloring.cpp src/coloring/dominator_coloring.cpp src/coloring/dicoloring.cpp src/sat.cpp src/binary_tree.cpp
+SRCS = src/graph.cpp src/coloring/proper_coloring.cpp src/coloring/dominator_coloring.cpp src/coloring/dicoloring.cpp src/sat.cpp src/binary_tree.cpp src/rook_graph.cpp
 OBJS = $(SRCS:src/%.cpp=build/%.o)
 
 all: $(TARGET_MAIN)

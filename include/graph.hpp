@@ -6,7 +6,7 @@
 
 
 class graph {
-    private:
+    protected:
         std::vector<std::set<int>> adjacency_list;
         bool directed;
 
