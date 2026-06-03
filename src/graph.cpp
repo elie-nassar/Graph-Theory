@@ -32,6 +32,12 @@ void graph::change_direction(int u,int v) {
     }
 }
 
+void graph::set_direction(int u,int v) {
+    if(!directed) return;
+    adjacency_list[u].insert(v);
+    adjacency_list[v].erase(u);
+}
+
 void graph::remove_edge(int u,int v) {
     adjacency_list[u].erase(v);
     if(!directed) adjacency_list[v].erase(u);
