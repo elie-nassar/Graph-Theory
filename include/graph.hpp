@@ -19,6 +19,7 @@ class graph {
         int add_vertex();
         void add_edge(int u,int v);
         void remove_edge(int u,int v);
+        void change_direction(int u,int v);
         bool is_well_formed() const;
         bool is_connected() const;
         int size() const;

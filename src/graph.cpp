@@ -20,6 +20,18 @@ void graph::add_edge(int u, int v) {
     adjacency_list[u].insert(v);
     if(!directed) adjacency_list[v].insert(u);
 }
+
+void graph::change_direction(int u,int v) {
+    if(!directed) return;
+    if(adjacency_list[u].contains(v)) {
+        adjacency_list[u].erase(v);
+        adjacency_list[v].insert(u);
+    }else {
+        adjacency_list[v].erase(u);
+        adjacency_list[u].insert(v);
+    }
+}
+
 void graph::remove_edge(int u,int v) {
     adjacency_list[u].erase(v);
     if(!directed) adjacency_list[v].erase(u);
