@@ -1,5 +1,6 @@
 #include "coloring/dominator_coloring.hpp"
 #include "sat.hpp"
+#include "cadical/src/cadical.hpp"
 #include <unordered_set>
 
 bool verify_dominator_coloring(const graph& G,int k, const std::vector<int>& coloring) {
@@ -60,30 +61,33 @@ std::vector<int> dominator_coloring_backtracking(const graph& G,int k) {
 }
 
 std::vector<int> dominator_coloring_sat(const graph& G,int k) {
-    std::vector<std::vector<int>> clauses;
+    CaDiCaL::Solver *solver = new CaDiCaL::Solver;
+    solver->set ("factor", 0);
+
     for(int u=0;u<G.size();u++) {
         for(int c=1;c<=k;c++) {
-            std::vector<int> dominator_neighborhood = {u*k+c};
-            for(int v:G.get_neighbors(u)) dominator_neighborhood.push_back(v*k+c);
-            clauses.push_back(dominator_neighborhood);
+            solver->add(u*k+c);
+            for(int v:G.get_neighbors(u)) solver->add(v*k+c);
+            solver->add(0);
         }
 
         for(int c1=1;c1<=k;c1++) {
             for(int c2=c1+1;c2<=k;c2++) {
-                clauses.push_back({-(u*k+c1),-(u*k+c2)});
+                solver->add(-(u*k+c1));
+                solver->add(-(u*k+c2));
+                solver->add(0);
             }
         }
     }
 
-    sat SAT(clauses);
-    auto assignment = SAT.solve_dpll();
-    if(assignment.empty()) return {};
+    int res = solver->solve();
+    if(res==20) return {};
 
     std::vector<int> coloring(G.size(),0);
     for(int u=0;u<G.size();u++) {
-        for(int c=0;c<=k-1;c++) {
-            if(assignment[u*k+c]) {
-                coloring[u] = c+1;
+        for(int c=1;c<=k;c++) {
+            if(solver->val(u*k+c)==u*k+c) {
+                coloring[u] = c;
                 break;
             }
         }
