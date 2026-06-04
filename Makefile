@@ -2,7 +2,7 @@ TARGET_MAIN = bin/main
 TARGET_TEST = bin/test
 
 CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++20 -Iinclude
+CXXFLAGS = -Wall -Wextra -std=c++20 -L./include/cadical/build -lcadical -Iinclude
 
 SRCS = src/graph.cpp src/coloring/proper_coloring.cpp src/coloring/dominator_coloring.cpp src/coloring/dicoloring.cpp src/coloring/rook_graph_dicoloring.cpp src/sat.cpp src/binary_tree.cpp src/rook_graph.cpp
 OBJS = $(SRCS:src/%.cpp=build/%.o)
@@ -19,11 +19,11 @@ test: $(OBJS) $(TESTS)
 
 proper_coloring_benchmark: $(OBJS)
 	@mkdir -p bin
-	g++ -Wall -Wextra -std=c++20 -Iinclude/benchmark/include ./src/benchmark/proper_coloring_benchmark.cpp -Iinclude $(OBJS) -L./include/benchmark/build/src -lbenchmark -lpthread -o bin/benchmark
+	g++ -Wall -Wextra -std=c++20 -L./include/cadical/build -lcadical -Iinclude/benchmark/include ./src/benchmark/proper_coloring_benchmark.cpp -Iinclude $(OBJS) -L./include/benchmark/build/src -lbenchmark -lpthread -o bin/benchmark
 
 dominator_coloring_benchmark: $(OBJS)
 	@mkdir -p bin
-	g++ -Wall -Wextra -std=c++20 -Iinclude/benchmark/include ./src/benchmark/dominator_coloring_benchmark.cpp -Iinclude $(OBJS) -L./include/benchmark/build/src -lbenchmark -lpthread -o bin/benchmark
+	g++ -Wall -Wextra -std=c++20 -L./include/cadical/build -lcadical -Iinclude/benchmark/include ./src/benchmark/dominator_coloring_benchmark.cpp -Iinclude $(OBJS) -L./include/benchmark/build/src -lbenchmark -lpthread -o bin/benchmark
 
 build/%.o: src/%.cpp
 	@mkdir -p $(dir $@)

@@ -1,5 +1,6 @@
 #include "coloring/proper_coloring.hpp"
 #include "sat.hpp"
+#include "cadical/src/cadical.hpp"
 #include <map>
 #include <unordered_map>
 #include <bit>
@@ -52,30 +53,33 @@ std::vector<int> proper_coloring_backtracking(const graph& G, int k) {
 }
 
 std::vector<int> proper_coloring_sat(const graph& G,int k) {
+    CaDiCaL::Solver *solver = new CaDiCaL::Solver;
+    solver->set ("factor", 0);
+
     std::vector<std::vector<int>> clauses;
     for(int u=0;u<G.size();u++) {
-        std::vector<int> at_least_one;
-        for(int c=1;c<=k;c++) at_least_one.push_back(u*k+c);
-        clauses.push_back(at_least_one);
+        for(int c=1;c<=k;c++) solver->add(u*k+c);
+        solver->add(0);
         
         for(int v:G.get_neighbors(u)) {
             if(v>u) {
                 for(int c=1;c<=k;c++) {
-                    clauses.push_back({-(u*k+c),-(v*k+c)});
+                    solver->add(-(u*k+c));
+                    solver->add(-(v*k+c));
+                    solver->add(0);
                 }
             }
         }
     }
 
-    sat SAT(clauses);
-    auto assignment = SAT.solve_dpll();
-    if(assignment.empty()) return {};
+    int res = solver->solve();
+    if(res==20) return {};
 
     std::vector<int> coloring(G.size(),0);
     for(int u=0;u<G.size();u++) {
-        for(int c=0;c<=k-1;c++) {
-            if(assignment[u*k+c]) {
-                coloring[u] = c+1;
+        for(int c=1;c<=k;c++) {
+            if(solver->val(u*k+c)==u*k+c) {
+                coloring[u] = c;
                 break;
             }
         }
