@@ -6,11 +6,11 @@ int convert(int x,int y,int n) {
 }
 
 int getX(int u,int n) {
-    return std::floor(u/n);
+    return u%n;
 }
 
 int getY(int u,int n) {
-    return u%n;
+    return std::floor(u/n);
 }
 
 rook_graph::rook_graph(int n) : n(n) {
