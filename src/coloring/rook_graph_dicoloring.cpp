@@ -13,14 +13,11 @@ std::unordered_set<int> get_available_colors_C3(const rook_graph& G, int u, int 
     int n = sqrt(G.size());   
     int x = getX(u,n);
     int y = getY(u,n);
-    std::cout << "(x,y)=("<<x<<","<<y<<")\n";
 
     if(x<n-2) {
         int u1 = u;
         int u2 = convert(x+1,y,n);
         int u3 = convert(x+2,y,n);
-        std::cout << u1 << " " << u2 << " " << u3 << " : cycle=";
-        std::cout << is_3_cyclic(G,u1,u2,u3) <<"\n";
         if(coloring[u2]!=0 && coloring[u2]==coloring[u3] && colors[coloring[u2]-1] && (is_3_cyclic(G,u1,u2,u3) || is_3_cyclic(G,u3,u2,u1))) colors[coloring[u2]-1] = false;
     }
     if(x>0 && x<n-1) {
@@ -64,10 +61,6 @@ std::unordered_set<int> get_available_colors_C3(const rook_graph& G, int u, int 
 
 std::vector<int> dicoloring_C3_backtracking(const rook_graph& G,int k, std::vector<int>& coloring,int node_id) {
     if(node_id>=G.size()) return coloring;
-
-    std::cout << "id : " << node_id << "\n";
-    for(int color:get_available_colors_C3(G,node_id,k,coloring)) std::cout << color << " ";
-    std::cout << "\n";
 
     for(int color:get_available_colors_C3(G,node_id,k,coloring)) {
         coloring[node_id] = color;
