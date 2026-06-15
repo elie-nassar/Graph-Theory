@@ -56,7 +56,6 @@ std::vector<int> proper_coloring_sat(const graph& G,int k) {
     CaDiCaL::Solver *solver = new CaDiCaL::Solver;
     solver->set ("factor", 0);
 
-    std::vector<std::vector<int>> clauses;
     for(int u=0;u<G.size();u++) {
         for(int c=1;c<=k;c++) solver->add(u*k+c);
         solver->add(0);

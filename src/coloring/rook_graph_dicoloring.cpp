@@ -1,4 +1,5 @@
 #include "coloring/rook_graph_dicoloring.hpp"
+#include "cadical/src/cadical.hpp"
 #include <unordered_set>
 
 
@@ -99,3 +100,79 @@ std::vector<int> dicoloring_C3_backtracking(const rook_graph& G,int k) {
     std::vector<int> coloring(G.size(),0);
     return dicoloring_C3_backtracking(G,k,coloring,0);
 }   
+
+std::vector<int> dicoloring_C3_sat(const rook_graph& G,int k) {
+    CaDiCaL::Solver *solver = new CaDiCaL::Solver;
+    solver->set ("factor", 0);
+    int n = sqrt(G.size());
+
+    for(int u=0;u<G.size();u++) {
+        for(int c=1;c<=k;c++) solver->add(u*k+c);
+        solver->add(0);
+
+        for(int c1=1;c1<=k;c1++) {
+            for(int c2=c1+1;c2<=k;c2++) {
+                solver->add(-(u*k+c1));
+                solver->add(-(u*k+c2));
+                solver->add(0);
+            }
+        }
+
+        int x1 = getX(u,n);
+        int y1 = getY(u,n);
+
+        for(int x2=x1+1;x2<n-1;x2++) {
+            for(int x3=x2+1;x3<n;x3++) {
+                int u2 = convert(x2,y1,n);
+                int u3 = convert(x3,y1,n);
+                if(is_3_cyclic(G,u,u2,u3) || is_3_cyclic(G,u3,u2,u)) {
+                    //std::cout << "Cycle : " << u << " " << u2 << " " << u3 << std::endl;
+                    for(int c=1;c<=k;c++) {
+                        solver->add(-(u*k+c));
+                        solver->add(-(u2*k+c));
+                        solver->add(-(u3*k+c));
+                        solver->add(0);
+                    }
+                }
+            }
+        }
+
+        for(int y2=y1+1;y2<n-1;y2++) {
+            for(int y3=y2+1;y3<n;y3++) {
+                int u2 = convert(x1,y2,n);
+                int u3 = convert(x1,y3,n);
+                if(is_3_cyclic(G,u,u2,u3) || is_3_cyclic(G,u3,u2,u)) {
+                    //std::cout << "Cycle : " << u << " " << u2 << " " << u3 << std::endl;
+                    for(int c=1;c<=k;c++) {
+                        solver->add(-(u*k+c));
+                        solver->add(-(u2*k+c));
+                        solver->add(-(u3*k+c));
+                        solver->add(0);
+                    }
+                }
+            }
+        } 
+
+    }
+
+    int res = solver->solve();
+    if(res==20) return {};
+
+    std::vector<int> coloring(G.size(),0);
+    for(int u=0;u<G.size();u++) {
+        for(int c=1;c<=k;c++) {
+            if(solver->val(u*k+c)==u*k+c) {
+                coloring[u] = c;
+                break;
+            }
+        }
+    }
+    return coloring;
+
+}
+
+int dichromatic_number_C3(const rook_graph& G) {
+    int k = 1;
+    while(dicoloring_C3_sat(G,k).empty()) k++;
+    return k;
+}
